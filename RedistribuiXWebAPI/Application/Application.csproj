@@ -17,4 +17,10 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\" />
+    <Folder Include="Utils\" />
+    <Folder Include="Use Cases\" />
+  </ItemGroup>
+
 </Project>
