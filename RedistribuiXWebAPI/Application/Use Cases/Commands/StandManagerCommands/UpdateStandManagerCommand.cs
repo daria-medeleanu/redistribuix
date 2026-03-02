@@ -1,4 +1,4 @@
-using Application.Use_Cases.Commands.UserCommand;
+using Application.Use_Cases.Commands.UserCommands;
 using System;
 
 namespace Application.Use_Cases.Commands.StandManagerCommands

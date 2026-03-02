@@ -19,8 +19,8 @@
 
   <ItemGroup>
     <Folder Include="Use Cases\Authentification\" />
-    <Folder Include="Use Cases\QueryHandlers\" />
-    <Folder Include="Use Cases\Queries\" />
+    <Folder Include="Use Cases\Queries\AdminQueries\" />
+    <Folder Include="Use Cases\QueryHandlers\AdminQueriesHandlers\" />
   </ItemGroup>
 
 </Project>

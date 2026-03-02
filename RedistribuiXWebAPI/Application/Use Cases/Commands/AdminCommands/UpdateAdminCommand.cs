@@ -1,10 +1,11 @@
+
+using Application.Use_Cases.Commands.UserCommands;
 using MediatR;
-using Application.Use_Cases.Commands.UserCommand;
-namespace Application.Use_Cases.Commands.AdminCommands
+
+namespace Application.Use_Cases.Commands.AdminCommands // <-- Fix namespace here
 {
-    public class UpdateAdminCommand : UserCommands<Guid>
+    public class UpdateAdminCommand : UserCommands<Unit>
     {
         public Guid Id { get; set; }
-        // Inherit Name, Email, Password from UserCommands<U>
     }
 }

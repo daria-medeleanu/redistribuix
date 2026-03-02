@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Use_Cases.CommandHandlers.AdminCommandHandlers
 {
-    public class CreateAdminCommandHandler : IRequestHandler<CreateAdminCommand, Result<Unit>>
+    public class CreateAdminCommandHandler : IRequestHandler<CreateAdminCommand, Result<Guid>>
     {
         private readonly IAdminRepository repository;
         private readonly IMapper mapper;
@@ -21,12 +21,18 @@ namespace Application.Use_Cases.CommandHandlers.AdminCommandHandlers
             this.mapper = mapper;
         }
 
-        public async Task<Result<Unit>> Handle(CreateAdminCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CreateAdminCommand request, CancellationToken cancellationToken)
         {
             var admin = mapper.Map<Admin>(request);
             admin.PasswordHash = PasswordHasher.HashPassword(request.Password);
-            await repository.AddAsync(admin);
-            return Result<Unit>.Success(Unit.Value);
+            var result = await repository.AddAsync(admin);
+            if (result.IsSuccess)
+            {
+                return Result<Guid>.Success(result.Data); // Return the new admin's Guid
+            }
+            return Result<Guid>.Failure(result.ErrorMessage);
         }
+
+
     }
 }

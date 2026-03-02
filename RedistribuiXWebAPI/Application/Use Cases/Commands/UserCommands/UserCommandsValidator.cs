@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Application.Use_Cases.Commands.UserCommand
+namespace Application.Use_Cases.Commands.UserCommands
 {
     public abstract class UserCommandsValidator<T, U> : AbstractValidator<T> where T : UserCommands<U>
     {
