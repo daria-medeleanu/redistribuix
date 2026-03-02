@@ -3,6 +3,9 @@ using Domain.Entities;
 using DTOs;
 using Application.Use_Cases.Commands.AdminCommands;
 using Application.Use_Cases.Commands.StandManagerCommands;
+using Application.Use_Cases.Commands.CalendarEventCommands;
+using Application.Use_Cases.Commands.DailySaleCommands;
+using Application.Use_Cases.Commands.StockVelocityCommands;
 namespace Application.Utils
 {
     public class MappingProfile : Profile
@@ -15,6 +18,18 @@ namespace Application.Utils
             CreateMap<StandManager, StandManagerDto>().ReverseMap();
             CreateMap<CreateStandManagerCommand, StandManager>().ReverseMap();
             CreateMap<UpdateStandManagerCommand, StandManager>().ReverseMap();
+
+            CreateMap<CalendarEvent, CalendarEventDto>().ReverseMap();
+            CreateMap<CreateCalendarEventCommand, CalendarEvent>().ReverseMap();
+            CreateMap<UpdateCalendarEventCommand, CalendarEvent>().ReverseMap();
+
+            CreateMap<DailySale, DailySaleDto>().ReverseMap();
+            CreateMap<CreateDailySaleCommand, DailySale>().ReverseMap();
+            CreateMap<UpdateDailySaleCommand, DailySale>().ReverseMap();
+
+            CreateMap<StockVelocity, StockVelocityDto>().ReverseMap();
+            CreateMap<CreateStockVelocityCommand, StockVelocity>().ReverseMap();
+            CreateMap<UpdateStockVelocityCommand, StockVelocity>().ReverseMap();
 /*
  CreateMap<Location, LocationDto>().ReverseMap();
  CreateMap<CreateLocationCommand, Location>().ReverseMap();

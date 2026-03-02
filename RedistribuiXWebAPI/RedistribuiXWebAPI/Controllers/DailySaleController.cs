@@ -1,6 +1,8 @@
-using Domain.Entities;
-using Domain.Repositories;
+using Application.Use_Cases.Commands.DailySaleCommands;
+using Application.Use_Cases.Queries.DailySaleQueries;
+using Domain.Common;
 using DTOs;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -9,65 +11,57 @@ namespace WebAPI.Controllers
     [ApiController]
     public class DailySaleController : ControllerBase
     {
-        private readonly IDailySaleRepository repository;
+        private readonly IMediator mediator;
 
-        public DailySaleController(IDailySaleRepository repository)
+        public DailySaleController(IMediator mediator)
         {
-            this.repository = repository;
+            this.mediator = mediator;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DailySaleDto>>> GetAll()
         {
-            var entities = await repository.GetAllAsync();
-            var dtos = entities.Select(MapToDto).ToList();
+            var dtos = await mediator.Send(new GetAllDailySalesQuery());
             return Ok(dtos);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<DailySaleDto>> GetById(int id)
         {
-            var entity = await repository.GetByIdAsync(id);
-            if (entity == null)
+            var result = await mediator.Send(new GetDailySaleByIdQuery { Id = id });
+            if (!result.IsSuccess)
             {
-                return NotFound();
+                return NotFound(result.ErrorMessage);
             }
 
-            return Ok(MapToDto(entity));
+            return Ok(result.Data);
         }
 
         [HttpPost]
-        public async Task<ActionResult<DailySaleDto>> Create([FromBody] DailySaleDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateDailySaleCommand command)
         {
-            var entity = new DailySale
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
             {
-                LocationId = dto.LocationId,
-                ProductId = dto.ProductId,
-                SaleDate = dto.SaleDate,
-                QuantitySold = dto.QuantitySold
-            };
+                return BadRequest(result.ErrorMessage);
+            }
 
-            await repository.AddAsync(entity);
-
-            var createdDto = MapToDto(entity);
-            return CreatedAtAction(nameof(GetById), new { id = entity.Id }, createdDto);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, new { id = result.Data });
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] DailySaleDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateDailySaleCommand command)
         {
-            var existing = await repository.GetByIdAsync(id);
-            if (existing == null)
+            if (id != command.Id)
             {
-                return NotFound();
+                command.Id = id;
             }
 
-            existing.LocationId = dto.LocationId;
-            existing.ProductId = dto.ProductId;
-            existing.SaleDate = dto.SaleDate;
-            existing.QuantitySold = dto.QuantitySold;
-
-            await repository.UpdateAsync(existing);
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.ErrorMessage);
+            }
 
             return NoContent();
         }
@@ -75,26 +69,13 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await repository.GetByIdAsync(id);
-            if (existing == null)
+            var result = await mediator.Send(new DeleteDailySaleByIdCommand(id));
+            if (!result.IsSuccess)
             {
-                return NotFound();
+                return NotFound(result.ErrorMessage);
             }
 
-            await repository.DeleteAsync(id);
             return NoContent();
-        }
-
-        private static DailySaleDto MapToDto(DailySale entity)
-        {
-            return new DailySaleDto
-            {
-                Id = entity.Id,
-                LocationId = entity.LocationId,
-                ProductId = entity.ProductId,
-                SaleDate = entity.SaleDate,
-                QuantitySold = entity.QuantitySold
-            };
         }
     }
 }
