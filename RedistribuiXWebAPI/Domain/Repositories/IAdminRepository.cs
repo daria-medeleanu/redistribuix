@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Common;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Domain.Repositories
     {
         Task <IEnumerable<Admin>> GetAllAsync();
         Task<Admin> GetByIdAsync(Guid id);
-        Task AddAsync(Admin admin);
+        Task<Result<Guid>> AddAsync(Admin admin);
         Task UpdateAsync(Admin admin);
         Task DeleteAsync(Guid id);
         Task <LoginResponse?> LoginAsync(string email, string password);

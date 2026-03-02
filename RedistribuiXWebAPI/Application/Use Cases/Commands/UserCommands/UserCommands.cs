@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Domain.Common;
-namespace Application.Use_Cases.Commands.UserCommand
+namespace Application.Use_Cases.Commands.UserCommands
 {
     public abstract class UserCommands<T> : IRequest<Result<T>>
     {

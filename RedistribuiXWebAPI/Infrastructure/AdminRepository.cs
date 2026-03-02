@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Common;
+using Domain.Entities;
 using Domain.Repositories;
 using Domain.Services;
 using Infrastructure.Persistence;
@@ -33,10 +34,19 @@ namespace Infrastructure
             return await context.Admins.FindAsync(id);
         }
 
-        public async Task AddAsync(Admin admin)
+        public async Task<Result<Guid>> AddAsync(Admin admin)
         {
-            await context.Admins.AddAsync(admin);
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.Admins.AddAsync(admin);
+                await context.SaveChangesAsync();
+
+                return Result<Guid>.Success(admin.Id);
+            }
+            catch (Exception ex)
+            {
+                return Result<Guid>.Failure(ex.InnerException!.ToString());
+            }
         }
 
         public async Task UpdateAsync(Admin admin)

@@ -1,11 +1,11 @@
 using FluentValidation;
 using MediatR;
-using Application.Use_Cases.Commands.UserCommand;
+using Application.Use_Cases.Commands.UserCommands;
 using Application.Use_Cases.Commands.AdminCommands;
 
-namespace Application.Use_Cases.Commands.AdminCommand
+namespace Application.Use_Cases.Commands.AdminCommands
 {
-    public class UpdateAdminCommandValidator : UserCommandsValidator<UpdateAdminCommand, Guid>
+    public class UpdateAdminCommandValidator : UserCommandsValidator<UpdateAdminCommand, Unit>
     {
         public UpdateAdminCommandValidator()
         {

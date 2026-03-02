@@ -1,6 +1,10 @@
 using Application.Use_Cases.Authentification;
 using Application.Use_Cases.Commands.AdminCommands;
+using Application.Use_Cases.Queries.AdminQueries;
+using AutoMapper;
 using Domain.Common;
+using Domain.Entities;
+using DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -25,13 +29,17 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result<Unit>>> CreateAdmin([FromBody] CreateAdminCommand command)
+        public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminCommand command)
         {
             var result = await mediator.Send(command);
             if (result.IsSuccess)
-                return Ok(result.Data);
+                return CreatedAtAction(nameof(GetByID), new { id = result.Data }, new { id = result.Data }); // returns { "id": "..." }
             return BadRequest(result.ErrorMessage);
         }
+
+
+
+
 
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login([FromBody] LoginCommand command)
@@ -51,18 +59,48 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        /*
+      
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByID(Guid id)
         {
-            var authHeader = Request.Headers.Authorization.ToString();
-            var authStatus = IAuthorizationManager.EnsureProperAuthorization(authHeader, JWT_SECRET, id, ALLOW_ADMIN);
-            if (!authStatus.IsSuccess)
+            var result = await mediator.Send(new GetAdminByIdQuery { Id = id });
+            if (result.IsSuccess)
             {
-                return Unauthorized(authStatus.ErrorMessage);
+                return Ok(result.Data);
             }
-            // Add logic to get admin by id if needed
-            return Ok();
-        }*/
+            return NotFound(result.ErrorMessage);
+        }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AdminDto>>> GetAll()
+        {
+            try
+            {
+                var admins = await mediator.Send(new GetAllAdminsQuery());
+                return Ok(admins);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+
+            try
+            {
+                var result = await mediator.Send(new DeleteAdminByIdCommand(id));
+                if (result.IsSuccess)
+                {
+                    return NoContent();
+                }
+                return NotFound(result.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

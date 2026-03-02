@@ -1,6 +1,6 @@
 using FluentValidation;
 using MediatR;
-using Application.Use_Cases.Commands.UserCommand;
+using Application.Use_Cases.Commands.UserCommands;
 
 namespace Application.Use_Cases.Commands.StandManagerCommands
 {
