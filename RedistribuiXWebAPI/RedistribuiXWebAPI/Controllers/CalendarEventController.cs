@@ -1,6 +1,8 @@
-using Domain.Entities;
-using Domain.Repositories;
+using Application.Use_Cases.Commands.CalendarEventCommands;
+using Application.Use_Cases.Queries.CalendarEventQueries;
+using Domain.Common;
 using DTOs;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -9,69 +11,57 @@ namespace WebAPI.Controllers
     [ApiController]
     public class CalendarEventController : ControllerBase
     {
-        private readonly ICalendarEventRepository repository;
+        private readonly IMediator mediator;
 
-        public CalendarEventController(ICalendarEventRepository repository)
+        public CalendarEventController(IMediator mediator)
         {
-            this.repository = repository;
+            this.mediator = mediator;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CalendarEventDto>>> GetAll()
         {
-            var entities = await repository.GetAllAsync();
-            var dtos = entities.Select(MapToDto).ToList();
+            var dtos = await mediator.Send(new GetAllCalendarEventsQuery());
             return Ok(dtos);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CalendarEventDto>> GetById(int id)
         {
-            var entity = await repository.GetByIdAsync(id);
-            if (entity == null)
+            var result = await mediator.Send(new GetCalendarEventByIdQuery { Id = id });
+            if (!result.IsSuccess)
             {
-                return NotFound();
+                return NotFound(result.ErrorMessage);
             }
 
-            return Ok(MapToDto(entity));
+            return Ok(result.Data);
         }
 
         [HttpPost]
-        public async Task<ActionResult<CalendarEventDto>> Create([FromBody] CalendarEventDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateCalendarEventCommand command)
         {
-            var entity = new CalendarEvent
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
             {
-                Name = dto.Name,
-                EventType = dto.EventType,
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
-                DemandMultiplier = dto.DemandMultiplier,
-                AffectedLocationType = dto.AffectedLocationType
-            };
+                return BadRequest(result.ErrorMessage);
+            }
 
-            await repository.AddAsync(entity);
-
-            var createdDto = MapToDto(entity);
-            return CreatedAtAction(nameof(GetById), new { id = entity.Id }, createdDto);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, new { id = result.Data });
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] CalendarEventDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCalendarEventCommand command)
         {
-            var existing = await repository.GetByIdAsync(id);
-            if (existing == null)
+            if (id != command.Id)
             {
-                return NotFound();
+                command.Id = id;
             }
 
-            existing.Name = dto.Name;
-            existing.EventType = dto.EventType;
-            existing.StartDate = dto.StartDate;
-            existing.EndDate = dto.EndDate;
-            existing.DemandMultiplier = dto.DemandMultiplier;
-            existing.AffectedLocationType = dto.AffectedLocationType;
-
-            await repository.UpdateAsync(existing);
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.ErrorMessage);
+            }
 
             return NoContent();
         }
@@ -79,28 +69,13 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await repository.GetByIdAsync(id);
-            if (existing == null)
+            var result = await mediator.Send(new DeleteCalendarEventByIdCommand(id));
+            if (!result.IsSuccess)
             {
-                return NotFound();
+                return NotFound(result.ErrorMessage);
             }
 
-            await repository.DeleteAsync(id);
             return NoContent();
-        }
-
-        private static CalendarEventDto MapToDto(CalendarEvent entity)
-        {
-            return new CalendarEventDto
-            {
-                Id = entity.Id,
-                Name = entity.Name,
-                EventType = entity.EventType,
-                StartDate = entity.StartDate,
-                EndDate = entity.EndDate,
-                DemandMultiplier = entity.DemandMultiplier,
-                AffectedLocationType = entity.AffectedLocationType
-            };
         }
     }
 }

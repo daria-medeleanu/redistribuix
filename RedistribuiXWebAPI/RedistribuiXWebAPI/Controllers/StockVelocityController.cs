@@ -1,7 +1,8 @@
-using Domain.Entities;
-using Domain.Enums;
-using Domain.Repositories;
+using Application.Use_Cases.Commands.StockVelocityCommands;
+using Application.Use_Cases.Queries.StockVelocityQueries;
+using Domain.Common;
 using DTOs;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -10,76 +11,57 @@ namespace WebAPI.Controllers
     [ApiController]
     public class StockVelocityController : ControllerBase
     {
-        private readonly IStockVelocityRepository repository;
+        private readonly IMediator mediator;
 
-        public StockVelocityController(IStockVelocityRepository repository)
+        public StockVelocityController(IMediator mediator)
         {
-            this.repository = repository;
+            this.mediator = mediator;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StockVelocityDto>>> GetAll()
         {
-            var entities = await repository.GetAllAsync();
-            var dtos = entities.Select(MapToDto).ToList();
+            var dtos = await mediator.Send(new GetAllStockVelocitiesQuery());
             return Ok(dtos);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<StockVelocityDto>> GetById(Guid id)
         {
-            var entity = await repository.GetByIdAsync(id);
-            if (entity == null)
+            var result = await mediator.Send(new GetStockVelocityByIdQuery { Id = id });
+            if (!result.IsSuccess)
             {
-                return NotFound();
+                return NotFound(result.ErrorMessage);
             }
 
-            return Ok(MapToDto(entity));
+            return Ok(result.Data);
         }
 
         [HttpPost]
-        public async Task<ActionResult<StockVelocityDto>> Create([FromBody] StockVelocityDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateStockVelocityCommand command)
         {
-            var entity = new StockVelocity
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
             {
-                LocationId = dto.LocationId,
-                ProductId = dto.ProductId,
-                CurrentQuantity = dto.CurrentQuantity,
-                SalesLast30Days = dto.SalesLast30Days,
-                SalesLast100Days = dto.SalesLast100Days,
-                LastInboundDate = dto.LastInboundDate,
-                LastInventoryDate = dto.LastInventoryDate
-            };
+                return BadRequest(result.ErrorMessage);
+            }
 
-            entity.RemainingStockDays = CalculateRemainingStockDays(entity.CurrentQuantity, entity.SalesLast100Days);
-            entity.StockConfidence = CalculateStockConfidence(entity.LastInventoryDate, DateTime.UtcNow);
-
-            await repository.AddAsync(entity);
-
-            var createdDto = MapToDto(entity);
-            return CreatedAtAction(nameof(GetById), new { id = entity.Id }, createdDto);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, new { id = result.Data });
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] StockVelocityDto dto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateStockVelocityCommand command)
         {
-            var existing = await repository.GetByIdAsync(id);
-            if (existing == null)
+            if (id != command.Id)
             {
-                return NotFound();
+                command.Id = id;
             }
 
-            existing.LocationId = dto.LocationId;
-            existing.ProductId = dto.ProductId;
-            existing.CurrentQuantity = dto.CurrentQuantity;
-            existing.SalesLast30Days = dto.SalesLast30Days;
-            existing.SalesLast100Days = dto.SalesLast100Days;
-            existing.LastInboundDate = dto.LastInboundDate;
-            existing.LastInventoryDate = dto.LastInventoryDate;
-            existing.RemainingStockDays = CalculateRemainingStockDays(existing.CurrentQuantity, existing.SalesLast100Days);
-            existing.StockConfidence = CalculateStockConfidence(existing.LastInventoryDate, DateTime.UtcNow);
-
-            await repository.UpdateAsync(existing);
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.ErrorMessage);
+            }
 
             return NoContent();
         }
@@ -87,64 +69,13 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var existing = await repository.GetByIdAsync(id);
-            if (existing == null)
+            var result = await mediator.Send(new DeleteStockVelocityByIdCommand(id));
+            if (!result.IsSuccess)
             {
-                return NotFound();
+                return NotFound(result.ErrorMessage);
             }
 
-            await repository.DeleteAsync(id);
             return NoContent();
-        }
-
-        private static StockVelocityDto MapToDto(StockVelocity entity)
-        {
-            return new StockVelocityDto
-            {
-                Id = entity.Id,
-                LocationId = entity.LocationId,
-                ProductId = entity.ProductId,
-                CurrentQuantity = entity.CurrentQuantity,
-                SalesLast30Days = entity.SalesLast30Days,
-                SalesLast100Days = entity.SalesLast100Days,
-                LastInboundDate = entity.LastInboundDate,
-                LastInventoryDate = entity.LastInventoryDate,
-                RemainingStockDays = entity.RemainingStockDays,
-                StockConfidence = entity.StockConfidence
-            };
-        }
-
-        private static decimal CalculateRemainingStockDays(int currentQuantity, int salesLast100Days)
-        {
-            if (salesLast100Days <= 0)
-            {
-                return 0;
-            }
-
-            var dailyAverage = salesLast100Days / 100m;
-            if (dailyAverage <= 0)
-            {
-                return 0;
-            }
-
-            return Math.Round(currentQuantity / dailyAverage, 2);
-        }
-
-        private static StockConfidence CalculateStockConfidence(DateTime lastInventoryDate, DateTime nowUtc)
-        {
-            var daysSinceInventory = (nowUtc.Date - lastInventoryDate.Date).TotalDays;
-
-            if (daysSinceInventory < 30)
-            {
-                return StockConfidence.High;
-            }
-
-            if (daysSinceInventory <= 60)
-            {
-                return StockConfidence.Medium;
-            }
-
-            return StockConfidence.Low;
         }
     }
 }
