@@ -189,9 +189,6 @@ namespace Infrastructure.Persistence
                 entity.Property(e => e.EndDate)
                     .IsRequired();
 
-                entity.Property(e => e.CourierBlocked)
-                    .IsRequired();
-
                 entity.Property(e => e.DemandMultiplier)
                     .HasColumnType("decimal(18,2)")
                     .IsRequired();

@@ -10,8 +10,6 @@ namespace DTOs
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-
-        public bool CourierBlocked { get; set; }
         public decimal DemandMultiplier { get; set; }
 
         public AffectedLocationType AffectedLocationType { get; set; }
