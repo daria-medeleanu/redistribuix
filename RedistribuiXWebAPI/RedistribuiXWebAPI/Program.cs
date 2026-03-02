@@ -15,7 +15,8 @@ builder.Services.AddCors(options =>
             policy.AllowAnyMethod();
         });
 });
-
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
