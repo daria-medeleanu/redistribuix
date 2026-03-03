@@ -7,6 +7,10 @@ using Application.Use_Cases.Commands.DailySaleCommands;
 using Application.Use_Cases.Commands.StockVelocityCommands;
 using Application.Use_Cases.Commands.ProductCommands;
 using Application.Use_Cases.Commands.PhoneModelCommands;
+using AutoMapper;
+using Domain.Entities;
+using DTOs;
+
 namespace Application.Utils
 {
     public class MappingProfile : Profile
@@ -42,8 +46,8 @@ namespace Application.Utils
             CreateMap<UpdateStockVelocityCommand, StockVelocity>().ReverseMap();
            
             CreateMap<TransportCost, TransportCostDto>().ReverseMap();
-            CreateMap<TransportBatch, TransportBatchDto>().ReverseMap();
-            CreateMap<TransportBatchProducts, TransportBatchProductsDto>().ReverseMap();
+            CreateMap<TransferBatch, TransferBatchDto>().ReverseMap();
+            CreateMap<TransferBatchProducts, TransferBatchProductsDto>().ReverseMap();
 
         }
     }
