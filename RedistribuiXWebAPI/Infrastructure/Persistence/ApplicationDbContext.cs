@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Domain.Entities;
- 
+
 namespace Infrastructure.Persistence
 {
     public class ApplicationDbContext : DbContext
@@ -15,6 +15,9 @@ namespace Infrastructure.Persistence
         public DbSet<Location> Locations { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<PhoneModel> PhoneModels { get; set; }
+        public DbSet<StockVelocity> StockVelocities { get; set; }
+        public DbSet<DailySale> DailySales { get; set; }
+        public DbSet<CalendarEvent> CalendarEvents { get; set; }
         // Add other DbSets as needed
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -76,7 +79,7 @@ namespace Infrastructure.Persistence
 
                 entity.Property(e => e.PhoneModelId)
                     .IsRequired(false);
-                
+
                 entity.Property(e => e.SalePrice)
                     .HasColumnType("decimal(18,2)")
                     .IsRequired();
@@ -90,27 +93,117 @@ namespace Infrastructure.Persistence
                     .HasForeignKey(e => e.PhoneModelId)
                     .OnDelete(DeleteBehavior.SetNull);
             });
-           
 
-             modelBuilder.Entity<PhoneModel>(entity =>
+
+            modelBuilder.Entity<PhoneModel>(entity =>
+           {
+               entity.ToTable("PhoneModels");
+               entity.HasKey(e => e.ModelId);
+               entity.Property(e => e.ModelId)
+                   .ValueGeneratedOnAdd();
+
+               entity.Property(e => e.ModelName)
+                   .IsRequired();
+
+               entity.Property(e => e.LifeStatus)
+                   .IsRequired();
+
+               entity.Property(e => e.ReleaseDate)
+                   .IsRequired();
+           });
+
+            modelBuilder.Entity<StockVelocity>(entity =>
             {
-                entity.ToTable("PhoneModels");
-                entity.HasKey(e => e.ModelId);
-                entity.Property(e => e.ModelId)
+                entity.ToTable("StockVelocities");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
                     .ValueGeneratedOnAdd();
 
-                entity.Property(e => e.ModelName)
+                entity.Property(e => e.CurrentQuantity)
                     .IsRequired();
 
-                entity.Property(e => e.LifeStatus)
-                    .IsRequired()
-                    .HasConversion<string>();
+                entity.Property(e => e.SalesLast30Days)
+                    .IsRequired();
 
-                entity.Property(e => e.ReleaseDate)
+                entity.Property(e => e.SalesLast100Days)
+                    .IsRequired();
+
+                entity.Property(e => e.LastInboundDate)
+                    .IsRequired();
+
+                entity.Property(e => e.LastInventoryDate)
+                    .IsRequired();
+
+                entity.Property(e => e.RemainingStockDays)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+
+                entity.Property(e => e.StockConfidence)
+                    .IsRequired();
+
+                entity.HasOne(e => e.Location)
+                    .WithMany()
+                    .HasForeignKey(e => e.LocationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Product)
+                    .WithMany()
+                    .HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DailySale>(entity =>
+            {
+                entity.ToTable("DailySales");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.SaleDate)
+                    .IsRequired();
+
+                entity.Property(e => e.QuantitySold)
+                    .IsRequired();
+
+                entity.HasOne(e => e.Location)
+                    .WithMany()
+                    .HasForeignKey(e => e.LocationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Product)
+                    .WithMany()
+                    .HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<CalendarEvent>(entity =>
+            {
+                entity.ToTable("CalendarEvents");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Name)
+                    .IsRequired();
+
+                entity.Property(e => e.EventType)
+                    .IsRequired();
+
+                entity.Property(e => e.StartDate)
+                    .IsRequired();
+
+                entity.Property(e => e.EndDate)
+                    .IsRequired();
+
+                entity.Property(e => e.DemandMultiplier)
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+
+                entity.Property(e => e.AffectedLocationType)
                     .IsRequired();
             });
 
-                       
+
             // Add seed data or additional configuration as needed
         }
     }

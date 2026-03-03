@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260302140430_AddNewEntities")]
+    partial class AddNewEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,6 +59,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("AffectedLocationType")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("CourierBlocked")
+                        .HasColumnType("boolean");
+
                     b.Property<decimal>("DemandMultiplier")
                         .HasColumnType("decimal(18,2)");
 
@@ -74,7 +80,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CalendarEvents", (string)null);
+                    b.ToTable("Eveniment_Calendar", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.DailySale", b =>
@@ -116,13 +122,11 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Profile")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Profile")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("PurchasingPower")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("PurchasingPower")
+                        .HasColumnType("integer");
 
                     b.HasKey("LocationId");
 
@@ -135,9 +139,8 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("LifeStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("LifeStatus")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ModelName")
                         .IsRequired()
@@ -157,9 +160,8 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Category")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()

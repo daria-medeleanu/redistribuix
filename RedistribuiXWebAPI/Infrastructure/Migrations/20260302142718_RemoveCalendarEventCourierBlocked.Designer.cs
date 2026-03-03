@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260302142718_RemoveCalendarEventCourierBlocked")]
+    partial class RemoveCalendarEventCourierBlocked
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,13 +119,11 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Profile")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Profile")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("PurchasingPower")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("PurchasingPower")
+                        .HasColumnType("integer");
 
                     b.HasKey("LocationId");
 
@@ -135,9 +136,8 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("LifeStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("LifeStatus")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ModelName")
                         .IsRequired()
@@ -157,9 +157,8 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Category")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
