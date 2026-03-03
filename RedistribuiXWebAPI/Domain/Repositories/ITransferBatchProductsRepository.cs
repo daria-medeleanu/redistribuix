@@ -6,7 +6,7 @@ namespace Domain.Repositories
 {
     public interface ITransferBatchProductsRepository
     {
-        Task<IEnumerable<TransferBatchProducts>> GetAllByBatchIdAsync(Guid transferBatchId);
+        Task<IEnumerable<TransferBatchProducts>> GetAllAsync();
         Task<TransferBatchProducts> GetByIdAsync(Guid id);
         Task AddAsync(TransferBatchProducts transferBatchProducts);
         Task UpdateAsync(TransferBatchProducts transferBatchProducts);

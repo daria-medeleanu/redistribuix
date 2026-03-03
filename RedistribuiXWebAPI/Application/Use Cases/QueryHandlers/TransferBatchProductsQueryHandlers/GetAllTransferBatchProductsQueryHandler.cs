@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Use_Cases.QueryHandlers.TransferBatchProductsQueryHandlers
 {
-    public class GetAllTransferBatchProductsByBatchIdQueryHandler : IRequestHandler<GetAllTransferBatchProductsByBatchIdQuery, List<TransferBatchProductsDto>>
+    public class GetAllTransferBatchProductsByBatchIdQueryHandler : IRequestHandler<GetAllTransferBatchProductsQuery, List<TransferBatchProductsDto>>
     {
         private readonly ITransferBatchProductsRepository repository;
         private readonly IMapper mapper;
@@ -17,9 +17,9 @@ namespace Application.Use_Cases.QueryHandlers.TransferBatchProductsQueryHandlers
             this.mapper = mapper;
         }
 
-        public async Task<List<TransferBatchProductsDto>> Handle(GetAllTransferBatchProductsByBatchIdQuery request, CancellationToken cancellationToken)
+        public async Task<List<TransferBatchProductsDto>> Handle(GetAllTransferBatchProductsQuery request, CancellationToken cancellationToken)
         {
-            var transferBatchProducts = await repository.GetAllByBatchIdAsync(request.TransferBatchId);
+            var transferBatchProducts = await repository.GetAllAsync();
             return mapper.Map<List<TransferBatchProductsDto>>(transferBatchProducts);
         }
     }

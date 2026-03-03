@@ -51,5 +51,11 @@ namespace RedistribuiXWebAPI.Controllers
                 return Ok(result.Data);
             return NotFound(result.ErrorMessage);
         }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TransferBatchProductsDto>>> GetAll()
+        {
+            var result = await mediator.Send(new GetAllTransferBatchProductsQuery());
+            return Ok(result);
+        }
     }
 }

@@ -16,11 +16,10 @@ namespace Infrastructure
             this.context = context;
         }
 
-        public async Task<IEnumerable<TransferBatchProducts>> GetAllByBatchIdAsync(Guid transferBatchId)
+        public async Task<IEnumerable<TransferBatchProducts>> GetAllAsync()
         {
             return await context.TransferBatchProducts
                 .Include(tbp => tbp.Product)
-                .Where(tbp => tbp.TransferBatchId == transferBatchId)
                 .ToListAsync();
         }
         public async Task<TransferBatchProducts> GetByIdAsync(Guid id)
