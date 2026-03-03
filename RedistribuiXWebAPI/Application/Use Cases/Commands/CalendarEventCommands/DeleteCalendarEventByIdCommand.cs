@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.Use_Cases.Commands.CalendarEventCommands
 {
-    public record DeleteCalendarEventByIdCommand(int Id) : IRequest<Result<Unit>>;
+    public record DeleteCalendarEventByIdCommand(Guid Id) : IRequest<Result<Unit>>;
 }

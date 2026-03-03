@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Use_Cases.Commands.DailySaleCommands
 {
-    public class CreateDailySaleCommand : IRequest<Result<int>>
+    public class CreateDailySaleCommand : IRequest<Result<Guid>>
     {
         public Guid LocationId { get; set; }
         public Guid ProductId { get; set; }

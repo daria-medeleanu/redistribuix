@@ -22,7 +22,7 @@ namespace Infrastructure
                 .ToListAsync();
         }
 
-        public async Task<DailySale?> GetByIdAsync(int id)
+        public async Task<DailySale?> GetByIdAsync(Guid id)
         {
             return await context.DailySales
                 .Include(d => d.Location)
@@ -42,7 +42,7 @@ namespace Infrastructure
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(Guid id)
         {
             var entity = await context.DailySales.FindAsync(id);
             if (entity != null)
