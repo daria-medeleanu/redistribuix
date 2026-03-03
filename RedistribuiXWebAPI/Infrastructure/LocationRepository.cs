@@ -1,3 +1,4 @@
+using Domain.Common;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Persistence;
@@ -19,15 +20,23 @@ namespace Infrastructure
             return await context.Locations.ToListAsync();
         }
 
-        public async Task<Location> GetByIdAsync(Guid id)
+        public async Task<Location?> GetByIdAsync(Guid id)
         {
             return await context.Locations.FindAsync(id);
         }
 
-        public async Task AddAsync(Location location)
+        public async Task<Result<Guid>> AddAsync(Location location)
         {
-            await context.Locations.AddAsync(location);
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.Locations.AddAsync(location);
+                await context.SaveChangesAsync();
+                return Result<Guid>.Success(location.LocationId);
+            }
+            catch (Exception ex)
+            {
+                return Result<Guid>.Failure(ex.InnerException?.ToString() ?? ex.Message);
+            }
         }
 
         public async Task UpdateAsync(Location location)
@@ -36,14 +45,16 @@ namespace Infrastructure
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<Result<Guid>> DeleteAsync(Guid id)
         {
             var location = await context.Locations.FindAsync(id);
             if (location != null)
             {
                 context.Locations.Remove(location);
                 await context.SaveChangesAsync();
+                return Result<Guid>.Success(id);
             }
+            return Result<Guid>.Failure("Location not found.");
         }
     }
 }

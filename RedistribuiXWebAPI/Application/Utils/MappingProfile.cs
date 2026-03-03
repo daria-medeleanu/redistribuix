@@ -3,6 +3,7 @@ using Domain.Entities;
 using DTOs;
 using Application.Use_Cases.Commands.AdminCommands;
 using Application.Use_Cases.Commands.StandManagerCommands;
+using Application.Use_Cases.Commands.LocationCommands;
 using Application.Use_Cases.Commands.CalendarEventCommands;
 using Application.Use_Cases.Commands.DailySaleCommands;
 using Application.Use_Cases.Commands.StockVelocityCommands;
@@ -19,6 +20,15 @@ namespace Application.Utils
             CreateMap<CreateStandManagerCommand, StandManager>().ReverseMap();
             CreateMap<UpdateStandManagerCommand, StandManager>().ReverseMap();
 
+            CreateMap<Location, LocationDto>().ReverseMap();
+            CreateMap<CreateLocationCommand, Location>().ReverseMap();
+            CreateMap<UpdateLocationCommand, Location>().ReverseMap();
+            /*CreateMap<Product, ProductDto>().ReverseMap();
+            CreateMap<CreateProductCommand, Product>().ReverseMap();
+            CreateMap<UpdateProductCommand, Product>().ReverseMap();
+            CreateMap<PhoneModel, PhoneModelDto>().ReverseMap();
+            CreateMap<CreatePhoneModelCommand, PhoneModel>().ReverseMap();
+            CreateMap<UpdatePhoneModelCommand, PhoneModel>().ReverseMap();*/
             CreateMap<CalendarEvent, CalendarEventDto>().ReverseMap();
             CreateMap<CreateCalendarEventCommand, CalendarEvent>().ReverseMap();
             CreateMap<UpdateCalendarEventCommand, CalendarEvent>().ReverseMap();

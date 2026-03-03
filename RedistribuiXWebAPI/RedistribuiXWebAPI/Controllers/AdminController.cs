@@ -39,8 +39,6 @@ namespace WebAPI.Controllers
 
 
 
-
-
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login([FromBody] LoginCommand command)
         {
@@ -84,6 +82,25 @@ namespace WebAPI.Controllers
             }
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAdminCommand command)
+        {
+            if (id != command.Id)
+                return BadRequest("Mismatched Admin ID.");
+            try
+            {
+                var result = await mediator.Send(command);
+                if (result.IsSuccess)
+                {
+                    return Ok(new { message = "Admin updated successfully." });
+                }
+                return NotFound(result.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -93,7 +110,7 @@ namespace WebAPI.Controllers
                 var result = await mediator.Send(new DeleteAdminByIdCommand(id));
                 if (result.IsSuccess)
                 {
-                    return NoContent();
+                    return Ok(new { message = "Admin deleted successfully." });
                 }
                 return NotFound(result.ErrorMessage);
             }

@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260302164534_EnumsToStrings")]
+    partial class EnumsToStrings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,67 +46,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Admins", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.CalendarEvent", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AffectedLocationType")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("DemandMultiplier")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("EventType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CalendarEvents", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.DailySale", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("QuantitySold")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("SaleDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocationId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("DailySales", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Location", b =>
@@ -213,67 +155,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("StandManagers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.StockVelocity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("CurrentQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("LastInboundDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("LastInventoryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("RemainingStockDays")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("SalesLast100Days")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SalesLast30Days")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("StockConfidence")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocationId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("StockVelocities", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.DailySale", b =>
-                {
-                    b.HasOne("Domain.Entities.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Location");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("Domain.Entities.Product", b =>
                 {
                     b.HasOne("Domain.Entities.PhoneModel", "PhoneModel")
@@ -293,25 +174,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Location");
-                });
-
-            modelBuilder.Entity("Domain.Entities.StockVelocity", b =>
-                {
-                    b.HasOne("Domain.Entities.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Location");
-
-                    b.Navigation("Product");
                 });
 #pragma warning restore 612, 618
         }
