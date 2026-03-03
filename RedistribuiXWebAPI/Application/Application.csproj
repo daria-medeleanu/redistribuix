@@ -19,8 +19,18 @@
 
   <ItemGroup>
     <Folder Include="Use Cases\Authentification\" />
+    <Folder Include="Use Cases\CommandHandlers\LocationCommandHandlers\" />
+    <Folder Include="Use Cases\Commands\LocationCommands\" />
+    <Folder Include="Use Cases\Commands\PhoneModelCommands\" />
+    <Folder Include="Use Cases\Commands\ProductCommands\" />
     <Folder Include="Use Cases\Queries\AdminQueries\" />
+    <Folder Include="Use Cases\Queries\LocationQueries\" />
+    <Folder Include="Use Cases\Queries\PhoneModelQueries\" />
+    <Folder Include="Use Cases\Queries\ProductQueries\" />
     <Folder Include="Use Cases\QueryHandlers\AdminQueriesHandlers\" />
+    <Folder Include="Use Cases\QueryHandlers\LocationQueryHandlers\" />
+    <Folder Include="Use Cases\QueryHandlers\PhoneModelQueryHandlers\" />
+    <Folder Include="Use Cases\QueryHandlers\ProductQueryHandlers\" />
   </ItemGroup>
 
 </Project>

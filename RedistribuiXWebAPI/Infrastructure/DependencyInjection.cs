@@ -1,4 +1,4 @@
-﻿using Domain.Repositories;
+using Domain.Repositories;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,16 +15,20 @@ namespace Infrastructure
                     configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
-
             services.AddScoped<IAdminRepository, AdminRepository>();
             services.AddScoped<ILocationRepository, LocationRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IStandManagerRepository, StandManagerRepository>();
             services.AddScoped<IPhoneModelRepository, PhoneModelRepository>();
+            
+            services.AddScoped<IStockVelocityRepository, StockVelocityRepository>();
+            services.AddScoped<IDailySaleRepository, DailySaleRepository>();
+            services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
+
             services.AddScoped<ITransportCostRepository, TransportCostRepository>();
             services.AddScoped<ITransferBatchRepository, TransferBatchRepository>();
             services.AddScoped<ITransferBatchProductsRepository, TransferBatchProductsRepository>();
-
+            
             services.AddScoped<ApplicationDbContext>();
 
             return services;

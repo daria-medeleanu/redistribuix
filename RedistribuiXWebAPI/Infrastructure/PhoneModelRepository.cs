@@ -1,7 +1,11 @@
+using Domain.Common;
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Infrastructure
 {
@@ -19,15 +23,23 @@ namespace Infrastructure
             return await context.PhoneModels.ToListAsync();
         }
 
-        public async Task<PhoneModel> GetByIdAsync(Guid id)
+        public async Task<PhoneModel?> GetByIdAsync(Guid id)
         {
-            return await context.PhoneModels.FindAsync(id);
+            return await context.PhoneModels.FirstOrDefaultAsync(pm => pm.ModelId == id);
         }
 
-        public async Task AddAsync(PhoneModel phoneModel)
+        public async Task<Result<Guid>> AddAsync(PhoneModel phoneModel)
         {
-            await context.PhoneModels.AddAsync(phoneModel);
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.PhoneModels.AddAsync(phoneModel);
+                await context.SaveChangesAsync();
+                return Result<Guid>.Success(phoneModel.ModelId);
+            }
+            catch (Exception ex)
+            {
+                return Result<Guid>.Failure(ex.InnerException?.ToString() ?? ex.Message);
+            }
         }
 
         public async Task UpdateAsync(PhoneModel phoneModel)
@@ -36,14 +48,16 @@ namespace Infrastructure
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<Result<Guid>> DeleteAsync(Guid id)
         {
             var phoneModel = await context.PhoneModels.FindAsync(id);
             if (phoneModel != null)
             {
                 context.PhoneModels.Remove(phoneModel);
                 await context.SaveChangesAsync();
+                return Result<Guid>.Success(id);
             }
+            return Result<Guid>.Failure("Phone model not found.");
         }
     }
 }
