@@ -7,6 +7,8 @@ using Application.Use_Cases.Commands.LocationCommands;
 using Application.Use_Cases.Commands.CalendarEventCommands;
 using Application.Use_Cases.Commands.DailySaleCommands;
 using Application.Use_Cases.Commands.StockVelocityCommands;
+using Application.Use_Cases.Commands.ProductCommands;
+using Application.Use_Cases.Commands.PhoneModelCommands;
 namespace Application.Utils
 {
     public class MappingProfile : Profile
@@ -23,12 +25,12 @@ namespace Application.Utils
             CreateMap<Location, LocationDto>().ReverseMap();
             CreateMap<CreateLocationCommand, Location>().ReverseMap();
             CreateMap<UpdateLocationCommand, Location>().ReverseMap();
-            /*CreateMap<Product, ProductDto>().ReverseMap();
+            CreateMap<Product, ProductDto>().ReverseMap();
             CreateMap<CreateProductCommand, Product>().ReverseMap();
             CreateMap<UpdateProductCommand, Product>().ReverseMap();
             CreateMap<PhoneModel, PhoneModelDto>().ReverseMap();
             CreateMap<CreatePhoneModelCommand, PhoneModel>().ReverseMap();
-            CreateMap<UpdatePhoneModelCommand, PhoneModel>().ReverseMap();*/
+            CreateMap<UpdatePhoneModelCommand, PhoneModel>().ReverseMap();
             CreateMap<CalendarEvent, CalendarEventDto>().ReverseMap();
             CreateMap<CreateCalendarEventCommand, CalendarEvent>().ReverseMap();
             CreateMap<UpdateCalendarEventCommand, CalendarEvent>().ReverseMap();
@@ -40,16 +42,6 @@ namespace Application.Utils
             CreateMap<StockVelocity, StockVelocityDto>().ReverseMap();
             CreateMap<CreateStockVelocityCommand, StockVelocity>().ReverseMap();
             CreateMap<UpdateStockVelocityCommand, StockVelocity>().ReverseMap();
-/*
- CreateMap<Location, LocationDto>().ReverseMap();
- CreateMap<CreateLocationCommand, Location>().ReverseMap();
- CreateMap<UpdateLocationCommand, Location>().ReverseMap();
- CreateMap<Product, ProductDto>().ReverseMap();
- CreateMap<CreateProductCommand, Product>().ReverseMap();
- CreateMap<UpdateProductCommand, Product>().ReverseMap();
- CreateMap<PhoneModel, PhoneModelDto>().ReverseMap();
- CreateMap<CreatePhoneModelCommand, PhoneModel>().ReverseMap();
- CreateMap<UpdatePhoneModelCommand, PhoneModel>().ReverseMap();*/
 
         }
     }
