@@ -106,7 +106,8 @@ namespace Infrastructure.Persistence
                    .IsRequired();
 
                entity.Property(e => e.LifeStatus)
-                   .IsRequired();
+                   .IsRequired()
+                   .HasConversion<string>();
 
                entity.Property(e => e.ReleaseDate)
                    .IsRequired();
