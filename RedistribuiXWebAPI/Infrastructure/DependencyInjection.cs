@@ -21,6 +21,9 @@ namespace Infrastructure
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IStandManagerRepository, StandManagerRepository>();
             services.AddScoped<IPhoneModelRepository, PhoneModelRepository>();
+            services.AddScoped<ITransportCostRepository, TransportCostRepository>();
+            services.AddScoped<ITransferBatchRepository, TransferBatchRepository>();
+            services.AddScoped<ITransferBatchProductsRepository, TransferBatchProductsRepository>();
 
             services.AddScoped<ApplicationDbContext>();
 

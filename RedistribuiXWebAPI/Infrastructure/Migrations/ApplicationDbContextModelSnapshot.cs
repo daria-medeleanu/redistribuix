@@ -148,6 +148,97 @@ namespace Infrastructure.Migrations
                     b.ToTable("StandManagers", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.TransferBatch", b =>
+                {
+                    b.Property<Guid>("TransferBatchId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DenialReason")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("DestinationLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("LogisticCostTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("RecommendedBySystemAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SourceLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TotalSaleValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TransferScore")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.HasKey("TransferBatchId");
+
+                    b.HasIndex("DestinationLocationId");
+
+                    b.HasIndex("SourceLocationId");
+
+                    b.ToTable("TransferBatches", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.TransferBatchProducts", b =>
+                {
+                    b.Property<Guid>("TransferBatchProductsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TransferBatchId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("TransferBatchProductsId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("TransferBatchId");
+
+                    b.ToTable("TransferBatchProducts", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.TransportCost", b =>
+                {
+                    b.Property<Guid>("TransportCostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("DestinationLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SourceLocationId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("TransportCostId");
+
+                    b.HasIndex("DestinationLocationId");
+
+                    b.HasIndex("SourceLocationId");
+
+                    b.ToTable("TransportCosts", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Product", b =>
                 {
                     b.HasOne("Domain.Entities.PhoneModel", "PhoneModel")
@@ -167,6 +258,68 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TransferBatch", b =>
+                {
+                    b.HasOne("Domain.Entities.Location", "DestinationLocation")
+                        .WithMany()
+                        .HasForeignKey("DestinationLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Location", "SourceLocation")
+                        .WithMany()
+                        .HasForeignKey("SourceLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DestinationLocation");
+
+                    b.Navigation("SourceLocation");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TransferBatchProducts", b =>
+                {
+                    b.HasOne("Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.TransferBatch", "TransferBatch")
+                        .WithMany("Products")
+                        .HasForeignKey("TransferBatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("TransferBatch");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TransportCost", b =>
+                {
+                    b.HasOne("Domain.Entities.Location", "DestinationLocation")
+                        .WithMany()
+                        .HasForeignKey("DestinationLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Location", "SourceLocation")
+                        .WithMany()
+                        .HasForeignKey("SourceLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DestinationLocation");
+
+                    b.Navigation("SourceLocation");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TransferBatch", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

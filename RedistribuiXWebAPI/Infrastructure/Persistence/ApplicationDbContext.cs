@@ -15,6 +15,10 @@ namespace Infrastructure.Persistence
         public DbSet<Location> Locations { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<PhoneModel> PhoneModels { get; set; }
+        public DbSet<TransportCost> TransportCosts { get; set; }
+        public DbSet<TransferBatch> TransferBatches { get; set; }
+        public DbSet<TransferBatchProducts> TransferBatchProducts { get; set; }
+
         // Add other DbSets as needed
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -102,8 +106,62 @@ namespace Infrastructure.Persistence
                 entity.Property(e => e.ReleaseDate)
                     .IsRequired();
             });
+            modelBuilder.Entity<TransportCost>(entity =>
+            {
+                entity.ToTable("TransportCosts");
+                entity.HasKey(e => e.TransportCostId);
+                entity.Property(e => e.TransportCostId).ValueGeneratedOnAdd();
+                entity.Property(e => e.SourceLocationId).IsRequired();
+                entity.Property(e => e.DestinationLocationId).IsRequired();
+                entity.Property(e => e.Cost).HasColumnType("decimal(18,2)").IsRequired();
+                entity.HasOne(e => e.SourceLocation)
+                      .WithMany()
+                      .HasForeignKey(e => e.SourceLocationId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(e => e.DestinationLocation)
+                      .WithMany()
+                      .HasForeignKey(e => e.DestinationLocationId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+            modelBuilder.Entity<TransferBatch>(entity =>
+            {
+                entity.ToTable("TransferBatches");
+                entity.HasKey(e => e.TransferBatchId);
+                entity.Property(e => e.TransferBatchId).ValueGeneratedOnAdd();
+                entity.Property(e => e.LogisticCostTotal).HasColumnType("decimal(18,2)").IsRequired();
+                entity.Property(e => e.TotalSaleValue).HasColumnType("decimal(18,2)").IsRequired();
+                entity.Property(e => e.TransferScore).HasColumnType("decimal(5,2)").IsRequired();
+                entity.Property(e => e.Status).HasConversion<string>().IsRequired();
+                entity.Property(e => e.DenialReason).IsRequired(false);
+                entity.Property(e => e.RecommendedBySystemAt).IsRequired();
+                entity.Property(e => e.ApprovedAt).IsRequired(false);
+                entity.HasOne(e => e.SourceLocation)
+                      .WithMany()
+                      .HasForeignKey(e => e.SourceLocationId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(e => e.DestinationLocation)
+                      .WithMany()
+                      .HasForeignKey(e => e.DestinationLocationId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
 
-                       
+            modelBuilder.Entity<TransferBatchProducts>(entity =>
+            {
+                entity.ToTable("TransferBatchProducts");
+                entity.HasKey(e => e.TransferBatchProductsId);
+                entity.Property(e => e.TransferBatchProductsId).ValueGeneratedOnAdd();
+                entity.Property(e => e.Quantity).IsRequired();
+                entity.HasOne(e => e.TransferBatch)
+                      .WithMany(tb => tb.Products)
+                      .HasForeignKey(e => e.TransferBatchId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Product)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
             // Add seed data or additional configuration as needed
         }
     }
