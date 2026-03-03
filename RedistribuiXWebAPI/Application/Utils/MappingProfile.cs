@@ -1,12 +1,15 @@
 ﻿using Application.DTOs;
 using Application.Use_Cases.Commands.AdminCommands;
-using Application.Use_Cases.Commands.StandManagerCommands;
-using Application.Use_Cases.Commands.LocationCommands;
 using Application.Use_Cases.Commands.CalendarEventCommands;
 using Application.Use_Cases.Commands.DailySaleCommands;
-using Application.Use_Cases.Commands.StockVelocityCommands;
-using Application.Use_Cases.Commands.ProductCommands;
+using Application.Use_Cases.Commands.LocationCommands;
 using Application.Use_Cases.Commands.PhoneModelCommands;
+using Application.Use_Cases.Commands.ProductCommands;
+using Application.Use_Cases.Commands.StandManagerCommands;
+using Application.Use_Cases.Commands.StockVelocityCommands;
+using Application.Use_Cases.Commands.TransferBatchCommands;
+using Application.Use_Cases.Commands.TransferBatchProductsCommands;
+using Application.Use_Cases.Commands.TransportCostCommands;
 using AutoMapper;
 using Domain.Entities;
 using DTOs;
@@ -46,9 +49,16 @@ namespace Application.Utils
             CreateMap<UpdateStockVelocityCommand, StockVelocity>().ReverseMap();
            
             CreateMap<TransportCost, TransportCostDto>().ReverseMap();
-            CreateMap<TransferBatch, TransferBatchDto>().ReverseMap();
-            CreateMap<TransferBatchProducts, TransferBatchProductsDto>().ReverseMap();
+            CreateMap<CreateTransportCostCommand, TransportCost>().ReverseMap();
+            CreateMap<UpdateTransportCostCommand, TransportCost>().ReverseMap();
 
+            CreateMap<TransferBatch, TransferBatchDto>().ReverseMap();
+            CreateMap<CreateTransferBatchCommand, TransferBatch>().ReverseMap();
+            CreateMap<UpdateTransferBatchCommand, TransferBatch>().ReverseMap();
+            
+            CreateMap<TransferBatchProducts, TransferBatchProductsDto>().ReverseMap();
+            CreateMap<CreateTransferBatchProductsCommand, TransferBatchProducts>().ReverseMap();
+            CreateMap<UpdateTransferBatchProductsCommand, TransferBatchProducts>().ReverseMap();
         }
     }
 }
