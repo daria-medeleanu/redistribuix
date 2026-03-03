@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using Domain.Entities;
-using DTOs;
+﻿using Application.DTOs;
 using Application.Use_Cases.Commands.AdminCommands;
 using Application.Use_Cases.Commands.StandManagerCommands;
 using Application.Use_Cases.Commands.LocationCommands;
@@ -9,6 +7,10 @@ using Application.Use_Cases.Commands.DailySaleCommands;
 using Application.Use_Cases.Commands.StockVelocityCommands;
 using Application.Use_Cases.Commands.ProductCommands;
 using Application.Use_Cases.Commands.PhoneModelCommands;
+using AutoMapper;
+using Domain.Entities;
+using DTOs;
+
 namespace Application.Utils
 {
     public class MappingProfile : Profile
@@ -21,7 +23,7 @@ namespace Application.Utils
             CreateMap<StandManager, StandManagerDto>().ReverseMap();
             CreateMap<CreateStandManagerCommand, StandManager>().ReverseMap();
             CreateMap<UpdateStandManagerCommand, StandManager>().ReverseMap();
-
+            
             CreateMap<Location, LocationDto>().ReverseMap();
             CreateMap<CreateLocationCommand, Location>().ReverseMap();
             CreateMap<UpdateLocationCommand, Location>().ReverseMap();
@@ -42,6 +44,10 @@ namespace Application.Utils
             CreateMap<StockVelocity, StockVelocityDto>().ReverseMap();
             CreateMap<CreateStockVelocityCommand, StockVelocity>().ReverseMap();
             CreateMap<UpdateStockVelocityCommand, StockVelocity>().ReverseMap();
+           
+            CreateMap<TransportCost, TransportCostDto>().ReverseMap();
+            CreateMap<TransferBatch, TransferBatchDto>().ReverseMap();
+            CreateMap<TransferBatchProducts, TransferBatchProductsDto>().ReverseMap();
 
         }
     }
