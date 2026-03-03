@@ -19,7 +19,7 @@ namespace Infrastructure
             return await context.CalendarEvents.ToListAsync();
         }
 
-        public async Task<CalendarEvent?> GetByIdAsync(int id)
+        public async Task<CalendarEvent?> GetByIdAsync(Guid id)
         {
             return await context.CalendarEvents.FirstOrDefaultAsync(e => e.Id == id);
         }
@@ -36,7 +36,7 @@ namespace Infrastructure
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(Guid id)
         {
             var entity = await context.CalendarEvents.FindAsync(id);
             if (entity != null)

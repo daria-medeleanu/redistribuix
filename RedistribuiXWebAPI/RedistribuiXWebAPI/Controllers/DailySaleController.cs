@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<DailySaleDto>> GetById(int id)
+        public async Task<ActionResult<DailySaleDto>> GetById(Guid id)
         {
             var result = await mediator.Send(new GetDailySaleByIdQuery { Id = id });
             if (!result.IsSuccess)
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateDailySaleCommand command)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDailySaleCommand command)
         {
             if (id != command.Id)
             {
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var result = await mediator.Send(new DeleteDailySaleByIdCommand(id));
             if (!result.IsSuccess)

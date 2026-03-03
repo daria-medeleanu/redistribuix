@@ -144,7 +144,8 @@ namespace Infrastructure.Persistence
                     .IsRequired();
 
                 entity.Property(e => e.StockConfidence)
-                    .IsRequired();
+                    .IsRequired()
+                    .HasConversion<string>();
 
                 entity.HasOne(e => e.Location)
                     .WithMany()
@@ -192,7 +193,8 @@ namespace Infrastructure.Persistence
                     .IsRequired();
 
                 entity.Property(e => e.EventType)
-                    .IsRequired();
+                    .IsRequired()
+                    .HasConversion<string>();
 
                 entity.Property(e => e.StartDate)
                     .IsRequired();
@@ -205,7 +207,8 @@ namespace Infrastructure.Persistence
                     .IsRequired();
 
                 entity.Property(e => e.AffectedLocationType)
-                    .IsRequired();
+                    .IsRequired()
+                    .HasConversion<string>();
             });
             modelBuilder.Entity<TransportCost>(entity =>
             {

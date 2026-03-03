@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.Use_Cases.Commands.DailySaleCommands
 {
-    public record DeleteDailySaleByIdCommand(int Id) : IRequest<Result<Unit>>;
+    public record DeleteDailySaleByIdCommand(Guid Id) : IRequest<Result<Unit>>;
 }

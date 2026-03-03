@@ -6,7 +6,7 @@ namespace Application.Use_Cases.Commands.CalendarEventCommands
 {
     public class UpdateCalendarEventCommand : IRequest<Result<Unit>>
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public EventType EventType { get; set; }
         public DateTime StartDate { get; set; }

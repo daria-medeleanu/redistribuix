@@ -4,7 +4,7 @@ namespace Domain.Entities
 {
     public class CalendarEvent
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public string Name { get; set; } = string.Empty;
         public EventType EventType { get; set; }
@@ -14,5 +14,10 @@ namespace Domain.Entities
         public decimal DemandMultiplier { get; set; }
 
         public AffectedLocationType AffectedLocationType { get; set; }
+
+        public CalendarEvent()
+        {
+            Id = Guid.NewGuid();
+        }
     }
 }

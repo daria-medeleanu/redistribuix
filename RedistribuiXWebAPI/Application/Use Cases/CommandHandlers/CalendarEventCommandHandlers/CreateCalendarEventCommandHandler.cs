@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Use_Cases.CommandHandlers.CalendarEventCommandHandlers
 {
-    public class CreateCalendarEventCommandHandler : IRequestHandler<CreateCalendarEventCommand, Result<int>>
+    public class CreateCalendarEventCommandHandler : IRequestHandler<CreateCalendarEventCommand, Result<Guid>>
     {
         private readonly ICalendarEventRepository repository;
         private readonly IMapper mapper;
@@ -18,13 +18,13 @@ namespace Application.Use_Cases.CommandHandlers.CalendarEventCommandHandlers
             this.mapper = mapper;
         }
 
-        public async Task<Result<int>> Handle(CreateCalendarEventCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CreateCalendarEventCommand request, CancellationToken cancellationToken)
         {
             var entity = mapper.Map<CalendarEvent>(request);
 
             await repository.AddAsync(entity);
 
-            return Result<int>.Success(entity.Id);
+            return Result<Guid>.Success(entity.Id);
         }
     }
 }

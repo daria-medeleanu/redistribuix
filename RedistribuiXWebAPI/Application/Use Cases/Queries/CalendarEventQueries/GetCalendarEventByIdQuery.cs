@@ -6,6 +6,6 @@ namespace Application.Use_Cases.Queries.CalendarEventQueries
 {
     public class GetCalendarEventByIdQuery : IRequest<Result<CalendarEventDto>>
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
     }
 }

@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CalendarEventDto>> GetById(int id)
+        public async Task<ActionResult<CalendarEventDto>> GetById(Guid id)
         {
             var result = await mediator.Send(new GetCalendarEventByIdQuery { Id = id });
             if (!result.IsSuccess)
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateCalendarEventCommand command)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCalendarEventCommand command)
         {
             if (id != command.Id)
             {
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var result = await mediator.Send(new DeleteCalendarEventByIdCommand(id));
             if (!result.IsSuccess)

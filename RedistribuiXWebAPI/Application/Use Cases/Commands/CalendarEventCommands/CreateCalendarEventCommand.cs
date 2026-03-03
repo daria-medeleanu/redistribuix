@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Use_Cases.Commands.CalendarEventCommands
 {
-    public class CreateCalendarEventCommand : IRequest<Result<int>>
+    public class CreateCalendarEventCommand : IRequest<Result<Guid>>
     {
         public string Name { get; set; } = string.Empty;
         public EventType EventType { get; set; }
