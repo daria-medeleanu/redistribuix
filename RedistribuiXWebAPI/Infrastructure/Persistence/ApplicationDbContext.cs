@@ -50,8 +50,12 @@ namespace Infrastructure.Persistence
                 entity.ToTable("Locations");
                 entity.HasKey(e => e.LocationId);
                 entity.Property(e => e.Name).IsRequired();
-                entity.Property(e => e.Profile).IsRequired();
-                entity.Property(e => e.PurchasingPower).IsRequired();
+                entity.Property(e => e.Profile)
+                      .IsRequired()
+                      .HasConversion<string>();
+                entity.Property(e => e.PurchasingPower)
+                      .IsRequired()
+                      .HasConversion<string>();
             });
 
             modelBuilder.Entity<Product>(entity =>
@@ -67,7 +71,9 @@ namespace Infrastructure.Persistence
                     .IsRequired();
 
                 entity.Property(e => e.Category)
-                    .IsRequired();
+                    .IsRequired()
+                    .HasConversion<string>();
+
                 entity.Property(e => e.PhoneModelId)
                     .IsRequired(false);
                 
@@ -97,7 +103,8 @@ namespace Infrastructure.Persistence
                     .IsRequired();
 
                 entity.Property(e => e.LifeStatus)
-                    .IsRequired();
+                    .IsRequired()
+                    .HasConversion<string>();
 
                 entity.Property(e => e.ReleaseDate)
                     .IsRequired();
