@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using Domain.Entities;
-using DTOs;
+﻿using Application.DTOs;
 using Application.Use_Cases.Commands.AdminCommands;
 using Application.Use_Cases.Commands.StandManagerCommands;
 using Application.Use_Cases.Commands.LocationCommands;
@@ -21,7 +19,7 @@ namespace Application.Utils
             CreateMap<StandManager, StandManagerDto>().ReverseMap();
             CreateMap<CreateStandManagerCommand, StandManager>().ReverseMap();
             CreateMap<UpdateStandManagerCommand, StandManager>().ReverseMap();
-
+            
             CreateMap<Location, LocationDto>().ReverseMap();
             CreateMap<CreateLocationCommand, Location>().ReverseMap();
             CreateMap<UpdateLocationCommand, Location>().ReverseMap();
@@ -42,6 +40,10 @@ namespace Application.Utils
             CreateMap<StockVelocity, StockVelocityDto>().ReverseMap();
             CreateMap<CreateStockVelocityCommand, StockVelocity>().ReverseMap();
             CreateMap<UpdateStockVelocityCommand, StockVelocity>().ReverseMap();
+           
+            CreateMap<TransportCost, TransportCostDto>().ReverseMap();
+            CreateMap<TransportBatch, TransportBatchDto>().ReverseMap();
+            CreateMap<TransportBatchProducts, TransportBatchProductsDto>().ReverseMap();
 
         }
     }
