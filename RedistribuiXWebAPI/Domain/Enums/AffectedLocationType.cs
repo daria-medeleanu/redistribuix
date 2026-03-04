@@ -5,6 +5,7 @@ namespace Domain.Enums
         All,
         Universitary,
         Touristic,
-        Premium
+        Mixed,
+        Transit
     }
 }
