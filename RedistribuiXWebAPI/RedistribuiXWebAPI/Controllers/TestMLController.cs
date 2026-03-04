@@ -7,11 +7,11 @@ namespace RedistribuiXWebAPI.Controllers
     [Route("api/[controller]")]
     public class TestMlController : ControllerBase
     {
-        private readonly SalesForecastService _forecastService;
+        private readonly ISalesForecastService forecastService;
 
-        public TestMlController(SalesForecastService forecastService)
+        public TestMlController(ISalesForecastService forecastService)
         {
-            _forecastService = forecastService;
+            this.forecastService = forecastService;
         }
 
         [HttpGet("test-100-days")]
@@ -19,8 +19,7 @@ namespace RedistribuiXWebAPI.Controllers
         {
             try
             {
-                // Apelează serviciul pe care tocmai l-ai creat
-                int predictedQty = await _forecastService.GetSalesForecast100DaysAsync(locationId, productId);
+                int predictedQty = await forecastService.GetSalesForecast100DaysAsync(locationId, productId);
 
                 return Ok(new
                 {

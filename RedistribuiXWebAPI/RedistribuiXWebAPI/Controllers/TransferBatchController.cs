@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Services;
 using Application.Use_Cases.Commands.TransferBatchCommands;
 using Application.Use_Cases.Queries.TransferBatchQueries;
 using Domain.Enums;
@@ -12,11 +13,14 @@ namespace RedistribuiXWebAPI.Controllers
     public class TransferBatchController : ControllerBase
     {
         private readonly IMediator mediator;
+        private readonly TransferRecommendationService transferRecommendationService;
 
-        public TransferBatchController(IMediator mediator, IConfiguration configuration)
+        public TransferBatchController(IMediator mediator, TransferRecommendationService transferRecommendationService)
         {
             this.mediator = mediator;
+            this.transferRecommendationService = transferRecommendationService;
         }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTransferBatchCommand command)
         {
@@ -34,6 +38,13 @@ namespace RedistribuiXWebAPI.Controllers
             if (result)
                 return Ok(new { message = "Transfer batch updated successfully." });
             return NotFound();
+        }
+
+        [HttpPost("generate-recommendations")]
+        public async Task<ActionResult<IEnumerable<TransferBatchDto>>> GenerateRecommendations()
+        {
+            var recommendations = await transferRecommendationService.GenerateRecommendationsAsync();
+            return Ok(recommendations);
         }
 
         [HttpDelete("{id}")]
