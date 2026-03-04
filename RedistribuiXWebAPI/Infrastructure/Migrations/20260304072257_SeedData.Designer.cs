@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260303133047_AddNewEntitiesAndEnumConversions")]
-    partial class AddNewEntitiesAndEnumConversions
+    [Migration("20260304072257_SeedData")]
+    partial class SeedData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,6 +46,15 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Admins", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Email = "admin@redistribux.com",
+                            Name = "Super Admin",
+                            PasswordHash = "hashed_password_here"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.CalendarEvent", b =>
@@ -78,6 +87,18 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CalendarEvents", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888881"),
+                            AffectedLocationType = "All",
+                            DemandMultiplier = 3.5m,
+                            EndDate = new DateTime(2024, 11, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EventType = "Promotion",
+                            Name = "Black Friday",
+                            StartDate = new DateTime(2024, 11, 29, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.DailySale", b =>
@@ -128,6 +149,22 @@ namespace Infrastructure.Migrations
                     b.HasKey("LocationId");
 
                     b.ToTable("Locations", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            LocationId = new Guid("22222222-2222-2222-2222-222222222221"),
+                            Name = "Stand Iulius Mall",
+                            Profile = "Mixed",
+                            PurchasingPower = "Premium"
+                        },
+                        new
+                        {
+                            LocationId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Name = "Stand Universitate",
+                            Profile = "University",
+                            PurchasingPower = "Budget"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.PhoneModel", b =>
@@ -150,6 +187,22 @@ namespace Infrastructure.Migrations
                     b.HasKey("ModelId");
 
                     b.ToTable("PhoneModels", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            ModelId = new Guid("44444444-4444-4444-4444-444444444441"),
+                            LifeStatus = "New",
+                            ModelName = "iPhone 15 Pro",
+                            ReleaseDate = new DateTime(2023, 9, 15, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            ModelId = new Guid("44444444-4444-4444-4444-444444444442"),
+                            LifeStatus = "Declining",
+                            ModelName = "Samsung Galaxy S22",
+                            ReleaseDate = new DateTime(2022, 2, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -184,6 +237,28 @@ namespace Infrastructure.Migrations
                     b.HasIndex("PhoneModelId");
 
                     b.ToTable("Products", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            ProductId = new Guid("55555555-5555-5555-5555-555555555551"),
+                            Category = "Case",
+                            Name = "Husa Silicon iPhone 15 Pro",
+                            PhoneModelId = new Guid("44444444-4444-4444-4444-444444444441"),
+                            PurchasePrice = 15.50m,
+                            SalePrice = 89.99m,
+                            Sku = "IP15P-CASE-BLK"
+                        },
+                        new
+                        {
+                            ProductId = new Guid("55555555-5555-5555-5555-555555555552"),
+                            Category = "ScreenProtector",
+                            Name = "Folie Sticla S22",
+                            PhoneModelId = new Guid("44444444-4444-4444-4444-444444444442"),
+                            PurchasePrice = 5.00m,
+                            SalePrice = 45.00m,
+                            Sku = "SGS22-GLASS-01"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.StandManager", b =>
@@ -212,6 +287,16 @@ namespace Infrastructure.Migrations
                     b.HasIndex("LocationId");
 
                     b.ToTable("StandManagers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333331"),
+                            Email = "ion@stand1.com",
+                            LocationId = new Guid("22222222-2222-2222-2222-222222222221"),
+                            Name = "Ion Popescu",
+                            PasswordHash = "hashed_password_here"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.StockVelocity", b =>
@@ -255,6 +340,21 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("StockVelocities", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("77777777-7777-7777-7777-777777777771"),
+                            CurrentQuantity = 50,
+                            LastInboundDate = new DateTime(2026, 2, 27, 7, 22, 57, 114, DateTimeKind.Utc).AddTicks(3979),
+                            LastInventoryDate = new DateTime(2026, 3, 3, 7, 22, 57, 114, DateTimeKind.Utc).AddTicks(4042),
+                            LocationId = new Guid("22222222-2222-2222-2222-222222222221"),
+                            ProductId = new Guid("55555555-5555-5555-5555-555555555551"),
+                            RemainingStockDays = 12.5m,
+                            SalesLast100Days = 350,
+                            SalesLast30Days = 120,
+                            StockConfidence = "High"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.TransferBatch", b =>
@@ -298,6 +398,19 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SourceLocationId");
 
                     b.ToTable("TransferBatches", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            TransferBatchId = new Guid("99999999-9999-9999-9999-999999999991"),
+                            DestinationLocationId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            LogisticCostTotal = 25.00m,
+                            RecommendedBySystemAt = new DateTime(2026, 3, 4, 5, 22, 57, 114, DateTimeKind.Utc).AddTicks(5807),
+                            SourceLocationId = new Guid("22222222-2222-2222-2222-222222222221"),
+                            Status = "Proposed",
+                            TotalSaleValue = 449.95m,
+                            TransferScore = 85.50m
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.TransferBatchProducts", b =>
@@ -322,6 +435,22 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TransferBatchId");
 
                     b.ToTable("TransferBatchProducts", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            TransferBatchProductsId = new Guid("00000000-0000-0000-0000-000000000001"),
+                            ProductId = new Guid("55555555-5555-5555-5555-555555555551"),
+                            Quantity = 10,
+                            TransferBatchId = new Guid("99999999-9999-9999-9999-999999999991")
+                        },
+                        new
+                        {
+                            TransferBatchProductsId = new Guid("00000000-0000-0000-0000-000000000002"),
+                            ProductId = new Guid("55555555-5555-5555-5555-555555555552"),
+                            Quantity = 5,
+                            TransferBatchId = new Guid("99999999-9999-9999-9999-999999999991")
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.TransportCost", b =>
@@ -346,6 +475,15 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SourceLocationId");
 
                     b.ToTable("TransportCosts", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            TransportCostId = new Guid("66666666-6666-6666-6666-666666666661"),
+                            Cost = 25.00m,
+                            DestinationLocationId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            SourceLocationId = new Guid("22222222-2222-2222-2222-222222222221")
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.DailySale", b =>
