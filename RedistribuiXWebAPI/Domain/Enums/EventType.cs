@@ -3,7 +3,8 @@ namespace Domain.Enums
     public enum EventType
     {
         Promotion,
-        Holiday,
-        PhoneLaunch
+        Vacation,
+        PhoneLaunch,
+        TouristSeason
     }
 }
