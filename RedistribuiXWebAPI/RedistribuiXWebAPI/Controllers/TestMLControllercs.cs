@@ -19,15 +19,27 @@ namespace RedistribuiXWebAPI.Controllers
         {
             try
             {
-                // Apelează serviciul pe care tocmai l-ai creat
-                int predictedQty = await _forecastService.GetSalesForecast100DaysAsync(locationId, productId);
+                var forecast = await _forecastService.GetSalesForecast100DaysAsync(locationId, productId);
+
+                if (forecast == null)
+                {
+                    return Ok(new
+                    {
+                        Message = "Nu s-a putut obține forecast (probabil lipsesc date)",
+                        Location = locationId,
+                        Product = productId
+                    });
+                }
 
                 return Ok(new
                 {
                     Message = "Succes!",
                     Location = locationId,
                     Product = productId,
-                    Forecast100Days = predictedQty
+                    Forecast100Days = forecast.TotalPredictedQuantity,
+                    PredictedDailySales = forecast.PredictedDailySales,
+                    DaysOfStockMl = forecast.DaysOfStockMl,
+                    StockStatus = forecast.StockStatus
                 });
             }
             catch (Exception ex)
