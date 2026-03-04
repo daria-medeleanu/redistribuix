@@ -26,6 +26,8 @@ class ForecastRequest(BaseModel):
     forecast_horizon: int = 100   
     profile_type_encoded: int
     purchasing_power_encoded: int
+    # NOU: stocul curent, pentru a putea calcula days_of_stock
+    current_stock: float
 
 # 3. Logica Autoregresivă
 @app.post("/forecast")
@@ -82,11 +84,33 @@ def forecast_sales(data: ForecastRequest):
         history.append(daily_pred_qty)
         total_predicted_sales += daily_pred_qty
 
+    # media vânzărilor zilnice pe orizontul de forecast
+    forecast_horizon_days = data.forecast_horizon
+    if forecast_horizon_days > 0:
+        predicted_daily_sales = total_predicted_sales / forecast_horizon_days
+    else:
+        predicted_daily_sales = 0.0
+
+    # calculăm days_of_stock_ml și clasificarea pe baza stocului curent
+    # folosim un prag minim pentru a evita împărțirea la 0
+    safe_daily = max(predicted_daily_sales, 0.01)
+    days_of_stock_ml = round(data.current_stock / safe_daily, 1)
+
+    if days_of_stock_ml > 45:
+        stock_status = "DEAD_STOCK"
+    elif days_of_stock_ml < 14:
+        stock_status = "STOCKOUT_RISK"
+    else:
+        stock_status = "NORMAL"
+
     return {
         "location_id": data.location_id,
         "product_id": data.product_id,
-        "forecast_horizon_days": data.forecast_horizon,
-        "total_predicted_quantity": total_predicted_sales
+        "forecast_horizon_days": forecast_horizon_days,
+        "total_predicted_quantity": int(total_predicted_sales),
+        "predicted_daily_sales": round(predicted_daily_sales, 3),
+        "days_of_stock_ml": days_of_stock_ml,
+        "stock_status": stock_status
     }
 
 if __name__ == "__main__":
