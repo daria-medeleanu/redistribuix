@@ -9,7 +9,13 @@ namespace Infrastructure.Persistence
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.ConfigureWarnings(warnings =>
+                warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
 
+            base.OnConfiguring(optionsBuilder);
+        }
         public DbSet<Admin> Admins { get; set; }
         public DbSet<StandManager> StandManagers { get; set; }
         public DbSet<Location> Locations { get; set; }
@@ -266,7 +272,7 @@ namespace Infrastructure.Persistence
             });
 
 
-
+            modelBuilder.Seed();
             // Add seed data or additional configuration as needed
         }
     }

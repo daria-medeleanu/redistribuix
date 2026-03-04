@@ -1,3 +1,4 @@
+using Domain.Common;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,10 @@ namespace Domain.Repositories
     {
         Task<IEnumerable<StandManager>> GetAllAsync();
         Task<StandManager> GetByIdAsync(Guid id);
-        Task AddAsync(StandManager standManager);
+
+        Task<Result<Guid>> AddAsync(StandManager standManager);
         Task UpdateAsync(StandManager standManager);
         Task DeleteAsync(Guid id);
-        Task<LoginResponse> LoginAsync(string email, string password);
+        Task<LoginResponse?> LoginAsync(string email, string password);
     }
 }
