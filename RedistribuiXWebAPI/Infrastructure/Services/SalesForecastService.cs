@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
 using System.Text.Json.Serialization;
+using Application.Services;
 
-namespace Application.Services
+namespace Infrastructure.Services
 {
-    // 1. Clasa "plicului" trimis spre Python
     public class MlForecastRequest
     {
         [JsonPropertyName("location_id")]
@@ -28,7 +28,6 @@ namespace Application.Services
         [JsonPropertyName("forecast_horizon")]
         public int ForecastHorizon { get; set; } = 100;
 
-        // --- ADĂUGAT: Câmpurile noi pentru locație ---
         [JsonPropertyName("profile_type_encoded")]
         public int ProfileTypeEncoded { get; set; }
 
@@ -66,7 +65,7 @@ namespace Application.Services
     }
 
     // 3. Serviciul principal
-    public class SalesForecastService
+    public class SalesForecastService : ISalesForecastService
     {
         private readonly ApplicationDbContext _context;
         private readonly HttpClient _httpClient;

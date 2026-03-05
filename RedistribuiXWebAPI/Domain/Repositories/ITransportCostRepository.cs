@@ -6,6 +6,8 @@ namespace Domain.Repositories
     {
         Task<IEnumerable<TransportCost>> GetAllAsync();
         Task<TransportCost> GetByIdAsync(Guid id);
+        Task<TransportCost?> GetByLocationsAsync(Guid sourceLocationId, Guid destinationLocationId);
+
         Task AddAsync(TransportCost transportCost);
         Task UpdateAsync(TransportCost transportCost);
         Task DeleteAsync(Guid id);

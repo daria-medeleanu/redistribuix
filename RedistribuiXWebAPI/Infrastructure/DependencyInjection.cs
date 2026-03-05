@@ -1,5 +1,7 @@
+using Application.Services;
 using Domain.Repositories;
 using Infrastructure.Persistence;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +30,9 @@ namespace Infrastructure
             services.AddScoped<ITransportCostRepository, TransportCostRepository>();
             services.AddScoped<ITransferBatchRepository, TransferBatchRepository>();
             services.AddScoped<ITransferBatchProductsRepository, TransferBatchProductsRepository>();
+
+            services.AddHttpClient<ISalesForecastService, SalesForecastService>();
+            services.AddScoped<TransferRecommendationService>();
             
             services.AddScoped<ApplicationDbContext>();
 

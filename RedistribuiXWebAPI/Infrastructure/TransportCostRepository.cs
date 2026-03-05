@@ -21,6 +21,12 @@ namespace Infrastructure
         {
             return await context.TransportCosts.FirstOrDefaultAsync(tc => tc.TransportCostId == id);
         }
+        public async Task<TransportCost?> GetByLocationsAsync(Guid sourceLocationId, Guid destinationLocationId)
+        {
+            return await context.TransportCosts.FirstOrDefaultAsync(tc =>
+                tc.SourceLocationId == sourceLocationId &&
+                tc.DestinationLocationId == destinationLocationId);
+        }
         public async Task AddAsync(TransportCost transportCost)
         {
             await context.TransportCosts.AddAsync(transportCost);
