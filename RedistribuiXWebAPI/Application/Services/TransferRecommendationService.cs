@@ -46,9 +46,9 @@ namespace Application.Services
                     var forecast100Days = await forecastService
                         .GetSalesForecast100DaysAsync(sv.LocationId, sv.ProductId);
 
-                    if (forecast100Days < LowStockThreshold)
+                    if (forecast100Days.DaysOfStockMl < LowStockThreshold)
                         lowStockLocations.Add(sv);
-                    else if (forecast100Days > HighStockThreshold)
+                    else if (forecast100Days.DaysOfStockMl > HighStockThreshold)
                         highStockLocations.Add(sv);
                 }
 
