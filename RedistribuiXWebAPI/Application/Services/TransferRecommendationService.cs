@@ -38,31 +38,111 @@ namespace Application.Services
             foreach (var productGroup in byProduct)
             {
                 var productId = productGroup.Key;
-                var lowStockLocations = new List<StockVelocity>();
-                var highStockLocations = new List<StockVelocity>();
+
+                // păstrăm împreună StockVelocity + forecast ML, ca să putem folosi DaysOfStock şi PredictedDailySales
+                var lowStockLocations = new List<(StockVelocity sv, SalesForecastDto forecast)>();
+                var highStockLocations = new List<(StockVelocity sv, SalesForecastDto forecast)>();
 
                 foreach (var sv in productGroup)
                 {
                     var forecast100Days = await forecastService
                         .GetSalesForecast100DaysAsync(sv.LocationId, sv.ProductId);
 
+                    if (forecast100Days == null)
+                    {
+                        continue;
+                    }
+
                     if (forecast100Days.DaysOfStockMl < LowStockThreshold)
-                        lowStockLocations.Add(sv);
+                        lowStockLocations.Add((sv, forecast100Days));
                     else if (forecast100Days.DaysOfStockMl > HighStockThreshold)
-                        highStockLocations.Add(sv);
+                        highStockLocations.Add((sv, forecast100Days));
                 }
 
-                foreach (var destination in lowStockLocations)
-                {
-                    foreach (var source in highStockLocations)
+                // construim starea pentru destinaţii (câtă nevoie au) şi surse (cât surplus au)
+                var destinationStates = lowStockLocations
+                    .Select(ld =>
                     {
+                        var needDays = LowStockThreshold - ld.forecast.DaysOfStockMl;
+                        if (needDays <= 0)
+                        {
+                            return null;
+                        }
+
+                        var needQty = (int)Math.Ceiling(needDays * ld.forecast.PredictedDailySales);
+
+                        return new LocationTransferState
+                        {
+                            Stock = ld.sv,
+                            Forecast = ld.forecast,
+                            RemainingQuantity = needQty
+                        };
+                    })
+                    .Where(x => x != null && x.RemainingQuantity > 0)
+                    .OrderByDescending(x => x.RemainingQuantity) // cele mai mari nevoi primele
+                    .ToList();
+
+                var sourceStates = highStockLocations
+                    .Select(sh =>
+                    {
+                        var surplusDays = sh.forecast.DaysOfStockMl - HighStockThreshold;
+                        if (surplusDays <= 0)
+                        {
+                            return null;
+                        }
+
+                        var surplusQty = (int)Math.Floor(surplusDays * sh.forecast.PredictedDailySales);
+
+                        return new LocationTransferState
+                        {
+                            Stock = sh.sv,
+                            Forecast = sh.forecast,
+                            RemainingQuantity = surplusQty
+                        };
+                    })
+                    .Where(x => x != null && x.RemainingQuantity > 0)
+                    .OrderByDescending(x => x.RemainingQuantity) // cele mai mari surplusuri primele
+                    .ToList();
+
+                if (!destinationStates.Any() || !sourceStates.Any())
+                {
+                    continue;
+                }
+
+                // matching: parcurgem destinaţiile (cele mai în nevoie primele)
+                // şi le alimentăm din surse (cele mai mari surplusuri) până se epuizează
+                var sourceIndex = 0;
+
+                foreach (var destState in destinationStates)
+                {
+                    while (destState.RemainingQuantity > 0 && sourceIndex < sourceStates.Count)
+                    {
+                        var sourceState = sourceStates[sourceIndex];
+
+                        if (sourceState.RemainingQuantity <= 0)
+                        {
+                            sourceIndex++;
+                            continue;
+                        }
+
+                        var quantityToTransfer = Math.Min(destState.RemainingQuantity, sourceState.RemainingQuantity);
+
+                        if (quantityToTransfer <= 0)
+                        {
+                            break;
+                        }
+
                         var transportCost = await transportCostRepository
-                            .GetByLocationsAsync(source.LocationId, destination.LocationId);
+                            .GetByLocationsAsync(sourceState.Stock.LocationId, destState.Stock.LocationId);
 
-                        if (transportCost == null) continue;
+                        if (transportCost == null)
+                        {
+                            // nu există rută între aceste locaţii, trecem la următoarea sursă
+                            sourceIndex++;
+                            continue;
+                        }
 
-                        int quantityToTransfer = CalculateQuantityToTransfer(source);
-                        decimal totalSaleValue = quantityToTransfer * source.Product.SalePrice;
+                        decimal totalSaleValue = quantityToTransfer * sourceState.Stock.Product.SalePrice;
                         decimal profit = totalSaleValue - transportCost.Cost;
                         decimal score = CalculateTransferScore(profit, transportCost.Cost);
 
@@ -71,8 +151,8 @@ namespace Application.Services
                         var batch = new TransferBatch
                         {
                             TransferBatchId = batchId,
-                            SourceLocationId = source.LocationId,
-                            DestinationLocationId = destination.LocationId,
+                            SourceLocationId = sourceState.Stock.LocationId,
+                            DestinationLocationId = destState.Stock.LocationId,
                             LogisticCostTotal = transportCost.Cost,
                             TotalSaleValue = totalSaleValue,
                             TransferScore = score,
@@ -105,17 +185,17 @@ namespace Application.Services
                             ApprovedAt = batch.ApprovedAt,
                             SourceLocation = new LocationDto
                             {
-                                LocationId = source.Location.LocationId,
-                                Name = source.Location.Name,
-                                Profile = source.Location.Profile,
-                                PurchasingPower = source.Location.PurchasingPower
+                                LocationId = sourceState.Stock.Location.LocationId,
+                                Name = sourceState.Stock.Location.Name,
+                                Profile = sourceState.Stock.Location.Profile,
+                                PurchasingPower = sourceState.Stock.Location.PurchasingPower
                             },
                             DestinationLocation = new LocationDto
                             {
-                                LocationId = destination.Location.LocationId,
-                                Name = destination.Location.Name,
-                                Profile = destination.Location.Profile,
-                                PurchasingPower = destination.Location.PurchasingPower
+                                LocationId = destState.Stock.Location.LocationId,
+                                Name = destState.Stock.Location.Name,
+                                Profile = destState.Stock.Location.Profile,
+                                PurchasingPower = destState.Stock.Location.PurchasingPower
                             },
                             Products = batch.Products.Select(p => new TransferBatchProductsDto
                             {
@@ -127,6 +207,15 @@ namespace Application.Services
                         };
 
                         recommendations.Add(dto);
+
+                        // actualizăm starea: am consumat din surplusul sursei şi din nevoia destinaţiei
+                        destState.RemainingQuantity -= quantityToTransfer;
+                        sourceState.RemainingQuantity -= quantityToTransfer;
+
+                        if (sourceState.RemainingQuantity <= 0)
+                        {
+                            sourceIndex++;
+                        }
                     }
                 }
             }
@@ -134,10 +223,11 @@ namespace Application.Services
             return recommendations;
         }
 
-        private static int CalculateQuantityToTransfer(StockVelocity source)
+        private class LocationTransferState
         {
-            int surplus = source.CurrentQuantity / 2;
-            return Math.Max(1, surplus);
+            public StockVelocity Stock { get; set; }
+            public SalesForecastDto Forecast { get; set; }
+            public int RemainingQuantity { get; set; }
         }
 
         private static decimal CalculateTransferScore(decimal profit, decimal cost)
