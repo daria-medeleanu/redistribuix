@@ -78,7 +78,7 @@ namespace Infrastructure.Services
             _httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
         }
 
-        public async Task<MlForecastResponse?> GetSalesForecast100DaysAsync(Guid locationId, Guid productId)
+        public async Task<SalesForecastDto?> GetSalesForecast100DaysAsync(Guid locationId, Guid productId)
         {
             // Luăm data de azi (UTC, fără ore)
             DateTime today = DateTime.UtcNow.Date;
@@ -133,10 +133,25 @@ namespace Infrastructure.Services
             {
                 // 4. Facem POST către Python API
                 var response = await _httpClient.PostAsJsonAsync("forecast", request);
-                response.EnsureSuccessStatusCode(); // Aruncă excepție dacă statusul nu e 2xx
+                response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadFromJsonAsync<MlForecastResponse>();
-                return result;
+                var mlResult = await response.Content.ReadFromJsonAsync<MlForecastResponse>();
+                if (mlResult == null)
+                {
+                    return null;
+                }
+
+                // Mapăm răspunsul ML brut într-un DTO simplu pentru Application/WebAPI
+                return new SalesForecastDto
+                {
+                    LocationId = mlResult.LocationId,
+                    ProductId = mlResult.ProductId,
+                    ForecastHorizonDays = mlResult.ForecastHorizonDays,
+                    TotalPredictedQuantity = mlResult.TotalPredictedQuantity,
+                    PredictedDailySales = mlResult.PredictedDailySales,
+                    DaysOfStockMl = mlResult.DaysOfStockMl,
+                    StockStatus = mlResult.StockStatus
+                };
             }
             catch (Exception ex)
             {
