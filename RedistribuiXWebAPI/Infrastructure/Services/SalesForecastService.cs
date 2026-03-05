@@ -33,6 +33,10 @@ namespace Infrastructure.Services
 
         [JsonPropertyName("purchasing_power_encoded")]
         public int PurchasingPowerEncoded { get; set; }
+
+        // NOU: stocul curent, folosit în ML pentru days_of_stock_ml
+        [JsonPropertyName("current_stock")]
+        public float CurrentStock { get; set; }
     }
 
     // 2. Clasa "răspunsului" primit de la Python
@@ -49,6 +53,15 @@ namespace Infrastructure.Services
 
         [JsonPropertyName("total_predicted_quantity")]
         public int TotalPredictedQuantity { get; set; }
+
+        [JsonPropertyName("predicted_daily_sales")]
+        public double PredictedDailySales { get; set; }
+
+        [JsonPropertyName("days_of_stock_ml")]
+        public double DaysOfStockMl { get; set; }
+
+        [JsonPropertyName("stock_status")]
+        public string StockStatus { get; set; }
     }
 
     // 3. Serviciul principal
@@ -65,7 +78,7 @@ namespace Infrastructure.Services
             _httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
         }
 
-        public async Task<int> GetSalesForecast100DaysAsync(Guid locationId, Guid productId)
+        public async Task<MlForecastResponse?> GetSalesForecast100DaysAsync(Guid locationId, Guid productId)
         {
             // Luăm data de azi (UTC, fără ore)
             DateTime today = DateTime.UtcNow.Date;
@@ -73,6 +86,11 @@ namespace Infrastructure.Services
 
             // --- ADĂUGAT: Aducem și detaliile locației din DB pentru a le trimite la model ---
             var location = await _context.Locations.FindAsync(locationId);
+
+            // NOU: luăm și stocul curent din StockVelocities pentru perechea (location, product)
+            var stockVelocity = await _context.StockVelocities
+                .FirstOrDefaultAsync(sv => sv.LocationId == locationId && sv.ProductId == productId);
+            float currentStock = stockVelocity != null ? stockVelocity.CurrentQuantity : 0f;
 
             // 1. Aducem vânzările din baza de date doar pe ultimele 30 de zile
             var rawSales = await _context.DailySales
@@ -105,7 +123,10 @@ namespace Infrastructure.Services
 
                 // --- ADĂUGAT: Mapăm Enum-urile locației la int (așa cum le așteaptă Python) ---
                 ProfileTypeEncoded = (int)(location?.Profile ?? 0),
-                PurchasingPowerEncoded = (int)(location?.PurchasingPower ?? 0)
+                PurchasingPowerEncoded = (int)(location?.PurchasingPower ?? 0),
+
+                // NOU: trimitem stocul curent către API-ul ML
+                CurrentStock = currentStock
             };
 
             try
@@ -115,13 +136,13 @@ namespace Infrastructure.Services
                 response.EnsureSuccessStatusCode(); // Aruncă excepție dacă statusul nu e 2xx
 
                 var result = await response.Content.ReadFromJsonAsync<MlForecastResponse>();
-                return result?.TotalPredictedQuantity ?? 0;
+                return result;
             }
             catch (Exception ex)
             {
                 // Logăm eroarea și returnăm 0 ca să nu dărâmăm aplicația
                 Console.WriteLine($"[Eroare ML API]: {ex.Message}");
-                return 0;
+                return null;
             }
         }
     }
