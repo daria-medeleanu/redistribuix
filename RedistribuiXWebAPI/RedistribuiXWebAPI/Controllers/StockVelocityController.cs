@@ -25,6 +25,13 @@ namespace WebAPI.Controllers
             return Ok(dtos);
         }
 
+        [HttpGet("by-location/{locationId}")]
+        public async Task<ActionResult<IEnumerable<StockVelocityDto>>> GetByLocation(Guid locationId)
+        {
+            var dtos = await mediator.Send(new GetStockVelocitiesByLocationQuery { LocationId = locationId });
+            return Ok(dtos);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<StockVelocityDto>> GetById(Guid id)
         {
