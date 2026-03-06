@@ -15,7 +15,7 @@ namespace Infrastructure.Persistence
         {
             // 1. ADMIN
             modelBuilder.Entity<Admin>().HasData(
-                new { Id = GetGuid(999), Name = "Super Admin ML", Email = "admin@redistribux.com", PasswordHash = "hashed_pw" }
+                new { Id = GetGuid(999), Name = "Super Admin ML", Email = "admin@redistribux.com", PasswordHash = "$2a$10$pnDecEBUQm3127Ru.JFe8OcwoW3d10NunqUBQdMp9.En0gKe9Y9Ui" }
             );
 
             // Definim ID-urile locațiilor separat pentru a le refolosi
@@ -40,7 +40,7 @@ namespace Infrastructure.Persistence
                     LocationId = locIds[i],
                     Name = $"Manager Locatia {i + 1}",
                     Email = $"manager{i + 1}@redistribux.com",
-                    PasswordHash = "hashed_pw"
+                    PasswordHash = "$2a$10$Tspxs1tNnXCIgyUCN/JtHe4sjKu4vb17qyrSVbdAxZ3GB4BgTcdoS"
                 });
             }
             modelBuilder.Entity<StandManager>().HasData(managers);

@@ -1,4 +1,4 @@
-import logoNotedAi from '../assets/react.svg'
+import logoRedistribuiX from '../assets/redistribuix_logo.png'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -11,16 +11,16 @@ function Navbar({ isHome = false }) {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   return (
-    <div className="flex w-full  flex-col md:flex-row gap-4 bg-white px-5 py-4 text-[#46190c]">
+    <div className="flex w-full  flex-col md:flex-row gap-4 bg-white px-5 py-1 text-[#46190c]">
       <div className="flex w-full md:w-fit items-center justify-between md:justify-center">
         <div className="flex items-center gap-2.5">
           <img
-            src={logoNotedAi}
-            className="h-12"
+            src={logoRedistribuiX}
+            className="h-25"
           />
           <div>
-            <p className="text-[12px] uppercase text-[#b66532]">Noted AI</p>
-            <p className="text-[16px] font-semibold">Workspace</p>
+            <p className="text-[12px] uppercase text-[#4d4dff]">RedistribuiX</p>
+            <p className="text-[16px] font-semibold">Stock cockpit</p>
           </div>
         </div>
         <button
@@ -64,7 +64,7 @@ function Navbar({ isHome = false }) {
         <div className="flex w-full flex-col gap-2 text-sm font-semibold  md:flex-row md:max-w-fit">
           {isHome ? (
             <button
-              className="w-full cursor-pointer rounded-2xl bg-[#4d4dff] px-4 py-2 text-center text-white md:shadow-md shadow-[#4d4dff]/40 transition hover:bg-[#ff8e2a]"
+              className="w-full cursor-pointer rounded-2xl bg-[#4d4dff] px-4 py-2 text-center text-white md:shadow-md shadow-[#4d4dff]/40 transition hover:bg-[#3b3bd9]"
               onClick={() => navigate('/')}
             >
               Sign out

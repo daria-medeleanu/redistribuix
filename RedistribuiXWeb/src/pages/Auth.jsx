@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 function AuthPage() {
   const [mode, setMode] = useState('login')
   const [formValues, setFormValues] = useState({ name: '', email: '', password: '' })
+  const [role, setRole] = useState('StandManager')
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const handleChange = (event) => {
@@ -11,106 +13,151 @@ function AuthPage() {
     setFormValues((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    // Placeholder submit handler
-    console.info(`${mode} attempted`, formValues)
+
+    try {
+      setError('')
+
+      if (mode !== 'login') {
+        console.info('Signup not implemented yet', { ...formValues, role })
+        return
+      }
+
+      const targetRole = role || 'StandManager'
+      const endpoint = `/api/v1/${targetRole}/login`
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formValues.email,
+          password: formValues.password,
+          role: targetRole,
+        }),
+      })
+
+      if (!response.ok) {
+        const message = await response.text()
+        throw new Error(message || 'Invalid credentials')
+      }
+
+      const data = await response.json()
+
+      // Persist simple auth info for later (token + role)
+      if (data?.token) {
+        window.localStorage.setItem(
+          'redistribuix_auth',
+          JSON.stringify({ token: data.token, role: targetRole })
+        )
+      }
+
+      if (targetRole === 'StandManager') {
+        navigate('/products')
+      } else {
+        navigate('/home')
+      }
+    } catch (err) {
+      console.error('Login failed', err)
+      setError('Could not log in. Please check your email, password and role.')
+    }
   }
 
   const isSignUp = mode === 'signup'
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f9f6f2] px-4 py-12 text-[#46190c]">
+    <div className="flex min-h-screen items-center justify-center bg-[#f9f6f2] px-4 py-12 text-[#000000]">
       <div className="w-full max-w-md space-y-8 rounded-3xl border border-[#eddccf] bg-white p-8 shadow-xl">
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="text-sm font-semibold text-[#8a5a43] transition hover:text-[#4d4dff]"
+          className="text-sm font-semibold text-[#3e3e8a] transition hover:text-[#4d4dff]"
         >
           ← Back to dashboard
         </button>
-        <div className="flex gap-2 rounded-2xl bg-[#ebebfb] p-1 text-sm font-semibold">
-          <button
-            type="button"
-            className={`flex-1 rounded-2xl px-4 py-2 transition ${
-              mode === 'login' ? 'bg-white shadow-sm text-[#46190c]' : 'text-[#3e3e8a] hover:text-[#4d4dff]'
-            }`}
-            onClick={() => setMode('login')}
-          >
-            Log in
-          </button>
-          <button
-            type="button"
-            className={`flex-1 rounded-2xl px-4 py-2 transition ${
-              mode === 'signup' ? 'bg-white shadow-sm text-[#46190c]' : 'text-[#3e3e8a] hover:text-[#4d4dff]'
-            }`}
-            onClick={() => setMode('signup')}
-          >
-            Sign up
-          </button>
+        <div className="flex gap-2 rounded-2xl bg-[#ebebfb] p-0.1 text-sm font-semibold border border-[#4d4dff]/10">
         </div>
 
         <div>
           <h1 className="text-2xl font-semibold">
-            {isSignUp ? 'Create your workspace pass' : 'Welcome back to RedistribuiX'}
+            Welcome back to RedistribuiX
           </h1>
-          <p className="mt-2 text-sm text-[#8a5a43]">
-            {isSignUp ? 'Spin up a new account in seconds—no credit card required.' : 'Enter your credentials to continue.'}
+          <p className="mt-2 text-sm text-[#6b7280]">
+            Enter your credentials to continue.
           </p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {isSignUp && (
-            <label className="block text-sm font-semibold">
-              <span>Full name</span>
-              <input
-                name="name"
-                value={formValues.name}
-                onChange={handleChange}
-                placeholder="Avery Rivera"
-                className="mt-1 w-full rounded-2xl border border-[#eddccf] bg-[#ebebfb] px-4 py-2 text-base placeholder:text-[#3e3e8a] focus:border-[#4d4dff] focus:outline-none"
-                required
-              />
-            </label>
-          )}
-
+          {/* Role selector: Admin vs Stand Manager (for login only) */}
+          <div className="flex items-center justify-between rounded-2xl bg-[#f3f0ff] px-2 py-1 text-xs font-semibold text-[#3e3e8a]">
+            <span className="px-2">Log in as</span>
+            <div className="flex gap-1 rounded-2xl bg-white/60 p-1">
+                <button
+                  type="button"
+                  onClick={() => setRole('Admin')}
+                  className={`rounded-2xl px-3 py-1 transition ${
+                    role === 'Admin'
+                      ? 'bg-white shadow-sm text-[#46190c]'
+                      : 'text-[#3e3e8a] hover:text-[#4d4dff]'
+                  }`}
+                >
+                  Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('StandManager')}
+                  className={`rounded-2xl px-3 py-1 transition ${
+                    role === 'StandManager'
+                      ? 'bg-white shadow-sm text-[#46190c]'
+                      : 'text-[#3e3e8a] hover:text-[#4d4dff]'
+                  }`}
+                >
+                  Stand manager
+                </button>
+              </div>
+          </div>
+          
           <label className="block text-sm font-semibold">
             <span>Email</span>
-            <input
-              type="email"
-              name="email"
-              value={formValues.email}
-              onChange={handleChange}
-              placeholder="you@team.com"
-              className="mt-1 w-full rounded-2xl border border-[#eddccf] bg-[#ebebfb] px-4 py-2 text-base placeholder:text-[#3e3e8a] focus:border-[#4d4dff] focus:outline-none"
-              required
-            />
+              <input
+                type="email"
+                name="email"
+                value={formValues.email}
+                onChange={handleChange}
+                placeholder="you@team.com"
+                className="mt-1 w-full rounded-2xl border border-[#3e3e8a] bg-[#ebebfb] px-4 py-2 text-base text-[#3e3e8a] placeholder:text-[#3e3e8a] focus:border-[#4d4dff] focus:outline-none"
+                required
+              />
           </label>
 
           <label className="block text-sm font-semibold">
             <span>Password</span>
-            <input
-              type="password"
-              name="password"
-              value={formValues.password}
-              onChange={handleChange}
-              placeholder="at least 8 characters"
-              className="mt-1 w-full rounded-2xl border border-[#eddccf] bg-[#ebebfb] px-4 py-2 text-base placeholder:text-[#3e3e8a] focus:border-[#4d4dff] focus:outline-none"
-              minLength={8}
-              required
-            />
+              <input
+                type="password"
+                name="password"
+                value={formValues.password}
+                onChange={handleChange}
+                placeholder="at least 8 characters"
+                className="mt-1 w-full rounded-2xl border border-[#3e3e8a] bg-[#ebebfb] px-4 py-2 text-base text-[#3e3e8a] placeholder:text-[#3e3e8a] focus:border-[#4d4dff] focus:outline-none"
+                minLength={8}
+                required
+              />
           </label>
 
           <button
             type="submit"
-            className="w-full rounded-2xl bg-[#4d4dff] px-4 py-2 text-lg font-semibold text-white shadow-lg shadow-[#4d4dff]/40 transition hover:bg-[#ff8e2a]"
-            onClick={() => navigate('/home')}
+            className="w-full rounded-2xl bg-[#4d4dff] px-4 py-2 text-lg font-semibold text-white shadow-lg shadow-[#4d4dff]/40 transition hover:bg-[#3e3e8a] active:bg-[#3e3e8a]"
           >
             {isSignUp ? 'Create account' : 'Log in'}
           </button>
+          {!!error && (
+            <p className="text-xs font-semibold text-red-600 pt-1">{error}</p>
+          )}
         </form>
 
-        <p className="text-center text-xs text-[#8a5a43]">
+        <p className="text-center text-xs text-[#6b7280]">
           By continuing you agree to our privacy policy and acceptable use guidelines.
         </p>
       </div>
