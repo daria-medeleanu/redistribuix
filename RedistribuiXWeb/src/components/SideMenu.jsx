@@ -4,6 +4,7 @@ import { NAV_ITEMS } from "../constants/constants";
 import boxIcon from "../assets/icons/box.png";
 import locationIcon from "../assets/icons/location.png";
 import userIcon from "../assets/icons/user.png";
+import courierIcon from "../assets/icons/courier.png";
 
 const PRODUCT_CATEGORIES = ["Case", "ScreenProtector", "Cable", "Charger", "All"];
 
@@ -86,13 +87,22 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
       navigate('/');
       onNavigate('home');
     } else if (itemId === 'products') {
-      navigate('/products', { state: { selectedCategory: null } });
-      onNavigate('products');
+      // Admins go to the global products page, stand managers to their own view
+      if (userRole === 'Admin') {
+        navigate('/productsAdmin');
+        onNavigate('productsAdmin');
+      } else {
+        navigate('/products', { state: { selectedCategory: null } });
+        onNavigate('products');
+      }
     } else if (itemId === 'locations') {
       navigate('/locations');
       onNavigate('locations');
     } else if (itemId === 'profile') {
       onNavigate('profile');
+    } else if (itemId === 'suggestedTransfers') {
+      navigate('/suggestedTransfer');
+      onNavigate('suggestedTransfers');
     } else {
       onNavigate(itemId);
     }
@@ -111,13 +121,23 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
   }
 
   function handleCategoryClick(categoryName) {
-    const categoryId = CATEGORY_ID_MAP[categoryName];
-    if (categoryId === 'all') {
-      navigate('/products', { state: { selectedCategory: 'all' } });
-      onNavigate(`product_all`);
+    if (userRole === 'Admin') {
+      // Admin: send category name (or 'All') to the admin products page
+      const adminState = {
+        selectedCategory: categoryName === 'All' ? 'All' : categoryName,
+      };
+      navigate('/productsAdmin', { state: adminState });
+      onNavigate('products');
     } else {
-      navigate('/products', { state: { selectedCategory: categoryId } });
-      onNavigate(`product_${categoryId}`);
+      // Stand manager: use stand manager products route
+      const categoryId = CATEGORY_ID_MAP[categoryName];
+      if (categoryId === 'all') {
+        navigate('/products', { state: { selectedCategory: 'all' } });
+        onNavigate('product_all');
+      } else {
+        navigate('/products', { state: { selectedCategory: categoryId } });
+        onNavigate(`product_${categoryId}`);
+      }
     }
   }
 
@@ -278,6 +298,37 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
               </span>
               <span className="pointer-events-none translate-x-[-6px] whitespace-nowrap text-[0.87rem] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
                 My Location
+              </span>
+            </button>
+          </div>
+        )}
+
+        {user?.role === 'Admin' && (
+          <div className="flex flex-col shrink-0">
+            <button
+              type="button"
+              title="Suggested Transfers"
+              onClick={() => handleMenuClick('suggestedTransfers')}
+              className={`relative flex h-11 w-full min-h-[44px] items-center overflow-hidden rounded-xl px-0 text-left text-[0.87rem] font-normal transition-colors ${
+                activePage === 'suggestedTransfers'
+                  ? "bg-[#e4e4ff] text-[#111827] font-medium"
+                  : "bg-transparent text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
+              }`}
+            >
+              <span
+                className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-md bg-[#4d4dff] transition-opacity ${
+                  activePage === 'suggestedTransfers' ? "opacity-100" : "opacity-0"
+                }`}
+              />
+              <span className="z-10 flex h-full w-[60px] min-w-[60px] items-center justify-center text-[1.15rem]">
+                <img
+                  src={courierIcon}
+                  alt="Suggested Transfers"
+                  className="h-8 w-8 object-contain"
+                />
+              </span>
+              <span className="pointer-events-none translate-x-[-6px] whitespace-nowrap text-[0.87rem] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                Suggested Transfers
               </span>
             </button>
           </div>

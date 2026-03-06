@@ -107,10 +107,12 @@ function AuthPage() {
         )
       }
 
-      if (decodedRole === 'StandManager' && authPayload.locationId) {
+      if (decodedRole === 'Admin') {
+        navigate('/productsAdmin')
+      } else if (decodedRole === 'StandManager' && authPayload.locationId) {
         navigate(`/locations/${authPayload.locationId}`)
       } else {
-        navigate('/products')
+        navigate('/')
       }
     } catch (err) {
       setError('Could not log in. Please check your email, password and role.')
