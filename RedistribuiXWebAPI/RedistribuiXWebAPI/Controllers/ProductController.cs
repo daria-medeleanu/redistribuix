@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace WebAPI.Controllers
 {
@@ -63,6 +64,13 @@ namespace WebAPI.Controllers
         {
             var products = await mediator.Send(new GetAllProductsQuery());
             return Ok(products);
+        }
+
+        [HttpGet("categories")]
+        public ActionResult<IEnumerable<string>> GetCategories()
+        {
+            var categories = Enum.GetNames(typeof(ProductCategory));
+            return Ok(categories);
         }
     }
 }
