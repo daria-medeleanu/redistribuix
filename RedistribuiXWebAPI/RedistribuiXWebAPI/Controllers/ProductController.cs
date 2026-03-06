@@ -2,8 +2,10 @@ using Application.Use_Cases.Commands.ProductCommands;
 using Application.Use_Cases.Queries.ProductQueries;
 using AutoMapper;
 using DTOs;
+using Infrastructure.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,10 +18,13 @@ namespace WebAPI.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IMediator mediator;
+        private readonly ApplicationDbContext _context;
 
-        public ProductController(IMediator mediator)
+
+        public ProductController(IMediator mediator, ApplicationDbContext context)
         {
             this.mediator = mediator;
+            this._context = context;
         }
 
         [HttpPost]
@@ -71,6 +76,15 @@ namespace WebAPI.Controllers
         {
             var categories = Enum.GetNames(typeof(ProductCategory));
             return Ok(categories);
+        [HttpGet("by-location/{locationId:guid}")]
+        
+        public async Task<IActionResult> GetProductsByLocation(Guid locationId)
+        {
+            var products = await _context.Products
+                .Where(p => _context.StockVelocities.Any(sv => sv.LocationId == locationId && sv.ProductId == p.ProductId))
+                .ToListAsync();
+
+            return Ok(products);
         }
     }
 }
