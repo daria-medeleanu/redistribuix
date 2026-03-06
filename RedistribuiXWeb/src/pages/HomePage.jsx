@@ -17,13 +17,23 @@ function HomePage() {
 		navigate('/auth')
 	}
 
+	const storedAuth = window.localStorage.getItem('redistribuix_auth')
+	const parsedAuth = storedAuth ? JSON.parse(storedAuth) : null
+	const role = parsedAuth?.role || 'StandManager'
+
+	if (role === 'Admin') {
+		window.location.replace('/products')
+		return null
+	}
+
 	return (
-		<div className="min-h-screen bg-[#f9f6f2] text-[#46190c] flex">
+		<div className="min-h-screen bg-white text-[#4b5563] flex">
 			<SideMenu
 				activePage={activePage}
 				onNavigate={handleNavigate}
 				userName="Alexia"
 				onLogout={handleLogout}
+				role={role}
 			/>
 
 			<div className="flex-1 flex flex-col">

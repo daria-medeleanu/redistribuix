@@ -22,6 +22,15 @@ namespace Infrastructure
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<StockVelocity>> GetByLocationAsync(Guid locationId)
+        {
+            return await context.StockVelocities
+                .Include(s => s.Location)
+                .Include(s => s.Product)
+                .Where(s => s.LocationId == locationId)
+                .ToListAsync();
+        }
+
         public async Task<StockVelocity> GetByIdAsync(Guid id)
         {
             return await context.StockVelocities
