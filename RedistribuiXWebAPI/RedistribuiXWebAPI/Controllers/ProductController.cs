@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace WebAPI.Controllers
 {
@@ -70,7 +71,13 @@ namespace WebAPI.Controllers
             return Ok(products);
         }
 
+        [HttpGet("categories")]
+        public ActionResult<IEnumerable<string>> GetCategories()
+        {
+            var categories = Enum.GetNames(typeof(ProductCategory));
+            return Ok(categories);
         [HttpGet("by-location/{locationId:guid}")]
+        
         public async Task<IActionResult> GetProductsByLocation(Guid locationId)
         {
             var products = await _context.Products
