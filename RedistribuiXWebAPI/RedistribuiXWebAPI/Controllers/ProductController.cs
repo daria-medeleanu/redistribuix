@@ -76,8 +76,9 @@ namespace WebAPI.Controllers
         {
             var categories = Enum.GetNames(typeof(ProductCategory));
             return Ok(categories);
+        }
         [HttpGet("by-location/{locationId:guid}")]
-        
+
         public async Task<IActionResult> GetProductsByLocation(Guid locationId)
         {
             var products = await _context.Products
