@@ -2,10 +2,8 @@ using Application.Use_Cases.Commands.StockVelocityCommands;
 using Application.Use_Cases.Queries.StockVelocityQueries;
 using Domain.Common;
 using DTOs;
-using Infrastructure.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers
 {
@@ -14,11 +12,10 @@ namespace WebAPI.Controllers
     public class StockVelocityController : ControllerBase
     {
         private readonly IMediator mediator;
-        private readonly ApplicationDbContext _context;
-        public StockVelocityController(IMediator mediator, ApplicationDbContext context)
+
+        public StockVelocityController(IMediator mediator)
         {
             this.mediator = mediator;
-            this._context = context;
         }
 
         [HttpGet]
@@ -28,14 +25,11 @@ namespace WebAPI.Controllers
             return Ok(dtos);
         }
 
-        [HttpGet("by-location/{locationId:guid}")]
-        public async Task<IActionResult> GetByLocation(Guid locationId)
+        [HttpGet("by-location/{locationId}")]
+        public async Task<ActionResult<IEnumerable<StockVelocityDto>>> GetByLocation(Guid locationId)
         {
-            var stockVelocities = await _context.StockVelocities
-                .Where(sv => sv.LocationId == locationId)
-                .ToListAsync();
-
-            return Ok(stockVelocities);
+            var dtos = await mediator.Send(new GetStockVelocitiesByLocationQuery { LocationId = locationId });
+            return Ok(dtos);
         }
 
         [HttpGet("{id}")]
