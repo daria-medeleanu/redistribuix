@@ -7,6 +7,8 @@ import SingleLocationPage from './pages/SingleLocationPage'
 import ProductCategoriesStandManagerPage from './pages/ProductCategoriesStandManagerPage'
 import LocationsPage from "./pages/LocationsPage";
 import SuggestedTransfersPage from "./pages/SuggestedTransfers"
+import ProfilePage from './pages/ProfilePage'
+import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
 
 function RequireAuth({ children }) {
@@ -38,8 +40,9 @@ function App() {
               <Route path="/locations" element={<RequireAuth><LocationsPage /></RequireAuth>} />
               <Route path="/locations/:id" element={<RequireAuth><SingleLocationPage /></RequireAuth>} />
               <Route path="/suggestedTransfer" element={<RequireAuth><SuggestedTransfersPage /></RequireAuth>} />
+              <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
               <Route path="/auth" element={<AuthPage />} />
-              {/* Add profile, etc routes as needed */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </div>
       </div>

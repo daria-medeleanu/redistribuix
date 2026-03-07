@@ -99,6 +99,7 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
       navigate('/locations');
       onNavigate('locations');
     } else if (itemId === 'profile') {
+      navigate('/profile');
       onNavigate('profile');
     } else if (itemId === 'suggestedTransfers') {
       navigate('/suggestedTransfer');
@@ -150,10 +151,10 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
         onClick={() => handleMenuClick("home")}
         className="flex h-[62px] items-center gap-3 border-b border-[#e5e7eb] px-4 cursor-pointer hover:bg-[#f9fafb] transition-colors"
       >
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#4d4dff] text-white text-xs font-bold">
+        <div className="flex h-10 w-10 min-w-[40px] shrink-0 items-center justify-center rounded-lg bg-[#4d4dff] text-white text-xs font-bold">
           R
         </div>
-        <span className="pointer-events-none translate-x-[-8px] whitespace-nowrap text-sm font-semibold tracking-tight text-[#111827] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+        <span className="pointer-events-none -translate-x-2 whitespace-nowrap text-sm font-semibold tracking-tight text-[#111827] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
           RedistribuiX
         </span>
       </button>
@@ -343,7 +344,7 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
         <button
           type="button"
           onClick={() => onNavigate("profile")}
-          className="flex h-12 min-h-[48px] items-center overflow-hidden rounded-xl border border-[#e5e7eb] bg-white text-left text-sm text-[#4b5563] transition-colors hover:bg-[#f3f4f6]"
+          className="flex cursor-pointer h-12 min-h-[48px] items-center overflow-hidden rounded-xl  border border-transparent bg-transparent text-left text-sm text-[#4b5563] transition-all hover:bg-[#e9e2fe] hover:text-[#8d8b91]"
         >
           <div className="flex h-full w-[60px] min-w-[60px] items-center justify-center">
             <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[#4d4dff] text-[0.76rem] font-semibold text-white tracking-wider">
@@ -361,7 +362,7 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
           type="button"
           onClick={onLogout}
           title="Log out"
-          className="flex h-[38px] min-h-[38px] w-full items-center overflow-hidden rounded-xl border border-transparent bg-transparent text-[0.82rem] text-[#6b7280] transition-all hover:bg-[#fee2e2] hover:text-[#ef4444]"
+          className="flex h-[38px] cursror-pointer min-h-[38px] w-full items-center overflow-hidden rounded-xl border border-transparent bg-transparent text-[0.82rem] text-[#6b7280] transition-all hover:bg-[#fee2e2] hover:text-[#ef4444]"
         >
           <span className="flex h-full w-[60px] min-w-[60px] items-center justify-center text-base">
             🚪
