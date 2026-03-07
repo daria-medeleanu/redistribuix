@@ -3,7 +3,9 @@ import AuthPage from './pages/Auth'
 import DashboardPage from './pages/Dashboard'
 import HomePage from './pages/HomePage'
 import ProductsPage from './pages/Products'
-import LocationDetailPage from './pages/LocationDetailPage'
+import SingleLocationPage from './pages/SingleLocationPage'
+import ProductCategoriesStandManagerPage from './pages/ProductCategoriesStandManagerPage'
+import LocationsPage from "./pages/LocationsPage";
 import './App.css'
 
 function RequireAuth({ children }) {
@@ -30,13 +32,11 @@ function App() {
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/home" element={<RequireAuth><HomePage /></RequireAuth>} />
-              {/* <Route path="/archive" element={<ArchivePage />} /> */}
-              {/* <Route path="/settings" element={<SettingsPage />} /> */}
+              <Route path="/products" element={<RequireAuth><ProductCategoriesStandManagerPage /></RequireAuth>} />
+              <Route path="/locations" element={<RequireAuth><LocationsPage /></RequireAuth>} />
+              <Route path="/locations/:id" element={<RequireAuth><SingleLocationPage /></RequireAuth>} />
               <Route path="/auth" element={<AuthPage />} />
-              <Route path="/products" element={<RequireAuth><ProductsPage /></RequireAuth>}/>
-              <Route path="/locations/:locationId" element={<RequireAuth><LocationDetailPage /></RequireAuth>}/>
-              
-              {/* <Route path="*" element={<NotFoundPage />} /> */}
+              {/* Add profile, etc routes as needed */}
             </Routes>
           </div>
       </div>
