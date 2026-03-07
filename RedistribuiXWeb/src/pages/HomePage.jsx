@@ -1,15 +1,25 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import SideMenu from '../components/SideMenu'
-
+import MapComponent from '../components/Map'
 function HomePage() {
 	const [activePage, setActivePage] = useState('rooms')
 	const navigate = useNavigate()
 
 	const handleNavigate = (pageId) => {
+		console.log('se apasa asta', pageId)
 		setActivePage(pageId)
 		if (pageId === 'profile') {
-			//something
+			navigate('/profile')
+		}
+		if(pageId === 'locations'){
+			navigate('/locations')
+		}
+		if(pageId === 'products'){
+			navigate('/products')
+		}
+		if(pageId === 'home'){
+			navigate('/home')
 		}
 	}
 
@@ -22,8 +32,8 @@ function HomePage() {
 	const role = parsedAuth?.role || 'StandManager'
 
 	if (role === 'Admin') {
-		window.location.replace('/products')
-		return null
+		// window.location.replace('/products')
+		// return null
 	}
 
 	return (
@@ -36,7 +46,7 @@ function HomePage() {
 				role={role}
 			/>
 
-			<div className="flex-1 flex flex-col">
+			<div className="flex-1 flex flex-col ml-16 relative z-10">
 				<main className="px-6 py-8 md:px-10 md:py-10">
 					<section className="max-w-5xl mx-auto space-y-6">
 						<div className="space-y-2">
@@ -47,7 +57,7 @@ function HomePage() {
 							</p>
 						</div>
 
-						<div className="grid gap-6 md:grid-cols-3">
+						{/* <div className="grid gap-6 md:grid-cols-3">
 							<div className="rounded-2xl border border-[#eddccf] bg-white p-4 shadow-sm" id="overview">
 								<h2 className="text-sm font-semibold mb-1">Stock overview</h2>
 								<p className="text-xs text-[#8a5a43]">
@@ -66,7 +76,8 @@ function HomePage() {
 									Later you can surface metrics like average days_of_stock_ml or forecast accuracy here.
 								</p>
 							</div>
-						</div>
+						</div> */}
+						<MapComponent/>
 					</section>
 				</main>
 			</div>
