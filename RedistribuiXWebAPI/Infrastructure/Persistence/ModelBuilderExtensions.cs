@@ -23,11 +23,11 @@ namespace Infrastructure.Persistence
 
             // 2. LOCAȚII (adaptate la noul tău enum de profiluri)
             modelBuilder.Entity<Location>().HasData(
-                new { LocationId = locIds[0], Name = "Palas Mall", Profile = ProfileType.Mixed, PurchasingPower = PurchasingPower.Premium },
-                new { LocationId = locIds[1], Name = "Campus Universitar", Profile = ProfileType.University, PurchasingPower = PurchasingPower.Budget },
-                new { LocationId = locIds[2], Name = "Aeroport Otopeni", Profile = ProfileType.Transit, PurchasingPower = PurchasingPower.Premium },
-                new { LocationId = locIds[3], Name = "Centru Istoric", Profile = ProfileType.Touristic, PurchasingPower = PurchasingPower.Medium },
-                new { LocationId = locIds[4], Name = "Gara de Nord", Profile = ProfileType.Transit, PurchasingPower = PurchasingPower.Budget }
+                new { LocationId = locIds[0], Name = "Palas Mall", County = "Iași", Locality = "Iași", Latitude = 47.1585, Longitude = 27.6014, Profile = ProfileType.Mixed, PurchasingPower = PurchasingPower.Premium },
+                new { LocationId = locIds[1], Name = "Campus Universitar", County = "Iași", Locality = "Iași", Latitude = 47.1653, Longitude = 27.5874, Profile = ProfileType.University, PurchasingPower = PurchasingPower.Budget },
+                new { LocationId = locIds[2], Name = "Aeroport Otopeni", County = "Ilfov", Locality = "Otopeni", Latitude = 44.5722, Longitude = 26.1021, Profile = ProfileType.Transit, PurchasingPower = PurchasingPower.Premium },
+                new { LocationId = locIds[3], Name = "Centru Istoric", County = "București", Locality = "București", Latitude = 44.4268, Longitude = 26.1025, Profile = ProfileType.Touristic, PurchasingPower = PurchasingPower.Medium },
+                new { LocationId = locIds[4], Name = "Gara de Nord", County = "București", Locality = "București", Latitude = 44.4452, Longitude = 26.0863, Profile = ProfileType.Transit, PurchasingPower = PurchasingPower.Budget }
             );
 
             // 3. STAND MANAGERS

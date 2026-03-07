@@ -15,11 +15,40 @@ const PURCHASING_POWER_OPTIONS = [
     { value: 2, label: 'Premium' }
 ]
 
-const geocodeLocation = async (county, locality) => {
-    const searchQuery = `${locality}, ${county}, Romania`
+const geocodeLocation = async (county, locality, address = '') => {
+    // Try with specific address first if provided
+    if (address && address.trim()) {
+        const addressQuery = `${address}, ${locality}, ${county}, Romania`
+        
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addressQuery)}&format=json&addressdetails=1&limit=1`,
+                {
+                    headers: {
+                        'User-Agent': 'RedistribuiX/1.0'
+                    }
+                }
+            )
+            
+            const data = await response.json()
+            
+            if (data && data.length > 0) {
+                return {
+                    lat: parseFloat(data[0].lat),
+                    lon: parseFloat(data[0].lon),
+                    isSpecific: true
+                }
+            }
+        } catch (err) {
+            console.log('Address not found, falling back to locality center')
+        }
+    }
+    
+    // Fallback to locality center
+    const localityQuery = `${locality}, ${county}, Romania`
     
     const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&addressdetails=1&limit=1`,
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(localityQuery)}&format=json&addressdetails=1&limit=1`,
         {
             headers: {
                 'User-Agent': 'RedistribuiX/1.0'
@@ -32,7 +61,8 @@ const geocodeLocation = async (county, locality) => {
     if (data && data.length > 0) {
         return {
             lat: parseFloat(data[0].lat),
-            lon: parseFloat(data[0].lon)
+            lon: parseFloat(data[0].lon),
+            isSpecific: false
         }
     }
     
@@ -42,6 +72,7 @@ const geocodeLocation = async (county, locality) => {
 export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
     const [formData, setFormData] = useState({
         name: '',
+        address: '',
         county: '',
         locality: '',
         profile: 1,
@@ -63,6 +94,8 @@ export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
 
         if (name === 'name') {
             setNameError('')
+            setFormData(prev => ({ ...prev, [name]: value }))
+        } else if (name === 'address') {
             setFormData(prev => ({ ...prev, [name]: value }))
         } else if (name === 'county') {
             setCountyError('')
@@ -106,30 +139,35 @@ export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
 
         try {
             // Get coordinates from geocoding
-            const { lat, lon } = await geocodeLocation(formData.county.trim(), formData.locality.trim())
+            const { lat, lon, isSpecific } = await geocodeLocation(
+                formData.county.trim(), 
+                formData.locality.trim(),
+                formData.address.trim()
+            )
             
             const payload = {
-                name: formData.name.trim(),
-                county: formData.county.trim(),
-                locality: formData.locality.trim(),
-                latitude: lat,
-                longitude: lon,
-                profile: formData.profile,
-                purchasingPower: formData.purchasingPower
+                Name: formData.name.trim(),
+                Address: formData.address.trim() || null,
+                County: formData.county.trim(),
+                Locality: formData.locality.trim(),
+                Latitude: lat,
+                Longitude: lon,
+                Profile: formData.profile,
+                PurchasingPower: formData.purchasingPower
             }
-            console.log(payload);
-            // const response = await fetch(`${API_BASE}/Location`, {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(payload)
-            // })
+            console.log(payload, isSpecific ? '(specific address)' : '(locality center)');
+            const response = await fetch(`${API_BASE}/Location`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
 
-            // if (!response.ok) {
-            //     const errorData = await response.text()
-            //     throw new Error(errorData || 'Failed to create location')
-            // }
+            if (!response.ok) {
+                const errorData = await response.text()
+                throw new Error(errorData || 'Failed to create location')
+            }
 
-            setFormData({ name: '', county: '', locality: '', profile: 1, purchasingPower: 1 })
+            setFormData({ name: '', address: '', county: '', locality: '', profile: 1, purchasingPower: 1 })
             setNameError('')
             setCountyError('')
             setLocalityError('')
@@ -143,7 +181,7 @@ export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
     }
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
                 <div className="flex items-center justify-between mb-5">
                     <h2 className="text-xl font-bold text-slate-900">Add New Location</h2>
@@ -177,6 +215,21 @@ export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
                             }`}
                         />
                         {nameError && <p className="mt-1 text-xs text-red-600">{nameError}</p>}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Street Address <span className="text-slate-400 font-normal">(optional)</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="address"
+                            placeholder="ex: Strada Palat 1"
+                            value={formData.address}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:border-blue-500 focus:ring-blue-500"
+                        />
+                        <p className="mt-1 text-xs text-slate-500">If not provided, location will use locality center</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
