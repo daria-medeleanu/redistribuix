@@ -187,15 +187,23 @@ namespace Application.Services
                             {
                                 LocationId = sourceState.Stock.Location.LocationId,
                                 Name = sourceState.Stock.Location.Name,
+                                County = sourceState.Stock.Location.County,
+                                Locality = sourceState.Stock.Location.Locality,
                                 Profile = sourceState.Stock.Location.Profile,
-                                PurchasingPower = sourceState.Stock.Location.PurchasingPower
+                                PurchasingPower = sourceState.Stock.Location.PurchasingPower,
+                                Latitude = sourceState.Stock.Location.Latitude,
+                                Longitude = sourceState.Stock.Location.Longitude
                             },
                             DestinationLocation = new LocationDto
                             {
                                 LocationId = destState.Stock.Location.LocationId,
                                 Name = destState.Stock.Location.Name,
+                                County = destState.Stock.Location.County,
+                                Locality = destState.Stock.Location.Locality,
                                 Profile = destState.Stock.Location.Profile,
-                                PurchasingPower = destState.Stock.Location.PurchasingPower
+                                PurchasingPower = destState.Stock.Location.PurchasingPower,
+                                Latitude = destState.Stock.Location.Latitude,
+                                Longitude = destState.Stock.Location.Longitude
                             },
                             Products = batch.Products.Select(p => new TransferBatchProductsDto
                             {

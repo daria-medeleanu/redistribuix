@@ -1,25 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// Temporary coordinates - you should add these to your backend API response
-const LOCATION_COORDINATES = {
-  'Palas Mall': { lat: 47.1585, lng: 27.6014, city: 'Iași' },
-  'Campus Universitar': { lat: 46.7704, lng: 23.5914, city: 'Cluj-Napoca' },
-  'Aeroport Otopeni': { lat: 44.5711, lng: 26.0850, city: 'București' },
-  'Centru Istoric': { lat: 44.4268, lng: 26.1025, city: 'București' },
-  'Gara de Nord': { lat: 44.4478, lng: 26.0742, city: 'București' }
-}
+const PROFILE_LABELS = ['University', 'Touristic', 'Transit', 'Mixed']
+const PURCHASING_POWER_LABELS = ['Budget', 'Medium', 'Premium']
 
-const PROFILE_LABELS = ['Student', 'Tourist', 'Business', 'Premium']
-const PURCHASING_POWER_LABELS = ['Low', 'Medium', 'High']
-
-// Custom marker component
 function LocationMarker({ location, onClick }) {
-  const coords = LOCATION_COORDINATES[location.name]
-  if (!coords) return null
+  // Check if location has valid coordinates
+  if (!location.latitude || !location.longitude) {
+    console.warn(`Location ${location.name} missing coordinates`)
+    return null
+  }
 
   const profileLabel = PROFILE_LABELS[location.profile] || 'Unknown'
   const purchasingLabel = PURCHASING_POWER_LABELS[location.purchasingPower] || 'Unknown'
@@ -56,18 +49,31 @@ function LocationMarker({ location, onClick }) {
 
   return (
     <Marker
-      position={[coords.lat, coords.lng]}
+      position={[location.latitude, location.longitude]}
       icon={customIcon}
       eventHandlers={{
         click: () => onClick(location)
       }}
     >
-      <Popup closeButton={false}>
+      <Tooltip direction="top" offset={[0, -20]} opacity={0.95}>
+        <div style={{ padding: '4px 8px', minWidth: '120px' }}>
+          <div style={{ fontWeight: 600, color: '#111827', fontSize: '14px', marginBottom: '4px' }}>
+            {location.name}
+          </div>
+          <div style={{ fontSize: '12px', color: '#6b7280' }}>
+            {location.locality}, {location.county}
+          </div>
+        </div>
+      </Tooltip>
+      {/* <Popup closeButton={false}>
         <div style={{ padding: '8px', minWidth: '180px' }}>
           <h3 style={{ margin: '0 0 8px 0', fontWeight: 600, color: '#111827', fontSize: '16px' }}>
             {location.name}
           </h3>
           <div style={{ fontSize: '13px', color: '#6b7280', lineHeight: 1.6 }}>
+            <div style={{ marginBottom: '4px' }}>
+              <span style={{ fontWeight: 500 }}>Location:</span> {location.locality}, {location.county}
+            </div>
             <div style={{ marginBottom: '4px' }}>
               <span style={{ fontWeight: 500 }}>Profile:</span> {profileLabel}
             </div>
@@ -79,12 +85,12 @@ function LocationMarker({ location, onClick }) {
             </div>
           </div>
         </div>
-      </Popup>
+      </Popup> */}
     </Marker>
   )
 }
 
-export default function MapComponent() {
+export default function MapComponent({ locationId }) {
   const [locations, setLocations] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -100,14 +106,21 @@ export default function MapComponent() {
           ? { Authorization: `Bearer ${parsedAuth.token}` }
           : {}
 
-        const response = await fetch('http://localhost:5056/api/v1/Location', {
+        // If locationId is provided, fetch single location; otherwise fetch all
+        const endpoint = locationId 
+          ? `http://localhost:5056/api/v1/Location/${locationId}`
+          : 'http://localhost:5056/api/v1/Location'
+
+        const response = await fetch(endpoint, {
           headers: authHeaders
         })
 
         if (!response.ok) throw new Error('Failed to fetch locations')
 
         const data = await response.json()
-        setLocations(data)
+        
+        // If single location, wrap in array for consistent handling
+        setLocations(locationId ? [data] : data)
         setIsLoading(false)
       } catch (err) {
         console.error('Error fetching locations:', err)
@@ -117,7 +130,7 @@ export default function MapComponent() {
     }
 
     fetchLocations()
-  }, [])
+  }, [locationId])
 
   const handleMarkerClick = (location) => {
     navigate(`/locations/${location.locationId}`, {

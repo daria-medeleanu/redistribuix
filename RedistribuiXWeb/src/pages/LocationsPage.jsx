@@ -88,7 +88,7 @@ export default function LocationsPage() {
         
         const locations = await locationsRes.json();
         const stocks = await stocksRes.json();
-
+        console.log(locations);
         const enrichedLocations = locations.map(loc => {
           const locationStocks = stocks.filter(s => s.locationId === loc.locationId);
           

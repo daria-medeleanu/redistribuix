@@ -12,7 +12,7 @@ namespace Application.DTOs
         public decimal TotalSaleValue { get; set; }
         public decimal TransferScore { get; set; }
         public StatusTransfer Status { get; set; }
-        public string DenialReason { get; set; }
+        public string? DenialReason { get; set; }
         public DateTime RecommendedBySystemAt { get; set; }
         //Aprobat sau respins de catre manager
         public DateTime? ApprovedAt { get; set; }
