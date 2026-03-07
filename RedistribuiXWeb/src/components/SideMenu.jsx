@@ -14,14 +14,18 @@ export default function SideMenu({ activePage, onNavigate, userName, onLogout, r
     <aside
       className="group fixed top-0 left-0 z-40 flex h-screen w-[64px] flex-col border-r border-[#e5e7eb] bg-white text-[#4b5563] shadow-sm transition-[width] duration-300 ease-in-out hover:w-64"
     >
-      <div className="flex h-[62px] items-center gap-3 border-b border-[#e5e7eb] px-4">
+      <button
+        type="button"
+        onClick={() => onNavigate("home")}
+        className="flex h-[62px] items-center gap-3 border-b border-[#e5e7eb] px-4 cursor-pointer hover:bg-[#f9fafb] transition-colors"
+      >
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#4d4dff] text-white text-xs font-bold">
           R
         </div>
         <span className="pointer-events-none translate-x-[-8px] whitespace-nowrap text-sm font-semibold tracking-tight text-[#111827] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
           RedistribuiX
         </span>
-      </div>
+      </button>
 
       <nav className="flex flex-1 flex-col gap-1 overflow-hidden px-2 py-3">
         <div className="h-0 overflow-hidden whitespace-nowrap px-2 text-[0.65rem] font-semibold uppercase tracking-[0.1em] text-[#9ca3af] opacity-0 transition-all duration-300 group-hover:h-5 group-hover:py-1 group-hover:opacity-100">

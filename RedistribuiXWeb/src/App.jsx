@@ -3,6 +3,7 @@ import AuthPage from './pages/Auth'
 import DashboardPage from './pages/Dashboard'
 import HomePage from './pages/HomePage'
 import ProductsPage from './pages/Products'
+import LocationDetailPage from './pages/LocationDetailPage'
 import './App.css'
 
 function RequireAuth({ children }) {
@@ -28,11 +29,13 @@ function App() {
           <div className="">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
-              <Route path="/home" element={<HomePage />} />
+              <Route path="/home" element={<RequireAuth><HomePage /></RequireAuth>} />
               {/* <Route path="/archive" element={<ArchivePage />} /> */}
               {/* <Route path="/settings" element={<SettingsPage />} /> */}
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/products" element={<RequireAuth><ProductsPage /></RequireAuth>}/>
+              <Route path="/locations/:locationId" element={<RequireAuth><LocationDetailPage /></RequireAuth>}/>
+              
               {/* <Route path="*" element={<NotFoundPage />} /> */}
             </Routes>
           </div>
