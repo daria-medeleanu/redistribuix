@@ -24,7 +24,7 @@ const CATEGORIES = [
   { id: 1, name: 'Screen Protector', icon: screenProtectorIcon, isImage: true },
   { id: 2, name: 'Cable', icon: cableIcon, isImage: true },
   { id: 3, name: 'Charger', icon: chargerIcon, isImage: true },
-  { id: 'all', name: 'All Products', name: 'Box', icon: boxIcon, isImage: true },
+  { id: 'all', name: 'All Products', icon: boxIcon, isImage: true },
 ]
 
 const getCategoryLabel = (categoryId) => {
@@ -186,7 +186,7 @@ export default function ProductCategoriesStandManagerPage() {
             )}
 
             {selectedCategory === null ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="flex flex-wrap items-center justify-center gap-8">
                 {CATEGORIES.map(category => {
                   const count = category.id === 'all' 
                     ? allProducts.length 
@@ -195,18 +195,23 @@ export default function ProductCategoriesStandManagerPage() {
                   return (
                     <button
                       key={category.id}
+                      type="button"
                       onClick={() => handleSelectCategory(category.id)}
-                      className="group flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:border-[#4d4dff] hover:shadow-lg hover:scale-105 cursor-pointer"
+                      className="group relative flex flex-col items-center justify-center gap-3 h-48 w-48 rounded-full border border-slate-200 bg-white shadow-sm transition-all duration-200 ease-out hover:border-[#4d4dff] hover:shadow-lg hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4d4dff]/50 cursor-pointer"
                     >
-                      {category.isImage ? (
-                        <img src={category.icon} alt={category.name} className="w-20 h-20 group-hover:scale-110 transition-transform" />
-                      ) : (
-                        <div className="text-6xl group-hover:scale-110 transition-transform">{category.icon}</div>
-                      )}
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold text-slate-900">{category.name}</h3>
-                        <p className="text-sm text-slate-500 mt-1">{count} products</p>
+                      <div className="flex items-center justify-center w-18 h-18 rounded-full bg-slate-50 overflow-hidden transition-transform duration-200 group-hover:scale-105">
+                        <img src={category.icon} alt={category.name} className="w-14 h-14 object-contain" />
                       </div>
+
+                      <span className="text-sm font-semibold leading-tight text-center text-[#4b5563]">
+                        {category.name}
+                      </span>
+
+                      {count > 0 && (
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full leading-none bg-[#dbdbff] text-[#4d4dff]">
+                          {count} types
+                        </span>
+                      )}
                     </button>
                   )
                 })}
@@ -245,7 +250,7 @@ export default function ProductCategoriesStandManagerPage() {
                     })()}
                   </h2>
                   <span className="ml-auto px-3 py-1 rounded-full bg-slate-100 text-sm font-medium text-slate-600">
-                    {filteredProducts.length} products
+                    {filteredProducts.length} types
                   </span>
                 </div>
 
@@ -281,10 +286,10 @@ export default function ProductCategoriesStandManagerPage() {
                                 </span>
                               </td>
                               <td className="px-6 py-4 text-right text-slate-900 font-medium">
-                               ${(product.purchasePrice || 0).toFixed(2)}
+                               {(product.purchasePrice || 0).toFixed(2)} RON
                               </td>
                               <td className="px-6 py-4 text-right text-[#4d4dff] font-medium">
-                               ${(product.salePrice || 0).toFixed(2)} 
+                               {(product.salePrice || 0).toFixed(2)} RON
                               </td>
                             </tr>
                           ))
