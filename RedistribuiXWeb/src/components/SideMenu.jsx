@@ -99,6 +99,7 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
       navigate('/locations');
       onNavigate('locations');
     } else if (itemId === 'profile') {
+      navigate('/profile');
       onNavigate('profile');
     } else if (itemId === 'suggestedTransfers') {
       navigate('/suggestedTransfer');
