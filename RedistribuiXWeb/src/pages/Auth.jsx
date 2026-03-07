@@ -1,6 +1,25 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const API_BASE = 'http://localhost:5056/api/v1'
+
+function decodeToken(token) {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    )
+    return JSON.parse(jsonPayload)
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
 function AuthPage() {
   const [mode, setMode] = useState('login')
   const [formValues, setFormValues] = useState({ name: '', email: '', password: '' })
@@ -20,12 +39,11 @@ function AuthPage() {
       setError('')
 
       if (mode !== 'login') {
-        console.info('Signup not implemented yet', { ...formValues, role })
         return
       }
 
       const targetRole = role || 'StandManager'
-      const endpoint = `/api/v1/${targetRole}/login`
+      const endpoint = `${API_BASE}/${targetRole}/login`
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -40,27 +58,61 @@ function AuthPage() {
       })
 
       if (!response.ok) {
-        const message = await response.text()
-        throw new Error(message || 'Invalid credentials')
+        throw new Error('Invalid credentials')
       }
 
       const data = await response.json()
 
-      // Persist simple auth info for later (token + role)
+      const decodedToken = decodeToken(data.token)
+      const userId = decodedToken?.unique_name
+      const decodedRole = decodedToken?.role || targetRole
+
+      let authPayload = {
+        token: data.token,
+        role: decodedRole,
+        id: userId,
+        email: formValues.email,
+        decodedToken: decodedToken
+      }
+
+      if (decodedRole === 'Admin') {
+        authPayload.name = decodedToken?.name || "Super Admin ML"
+      } else {
+        if (userId) {
+          try {
+            const managerResponse = await fetch(`${API_BASE}/StandManager/${userId}`, {
+              headers: {
+                'Authorization': `Bearer ${data.token}`,
+                'Content-Type': 'application/json'
+              }
+            })
+
+            if (managerResponse.ok) {
+              const managerData = await managerResponse.json()
+              authPayload.locationId = managerData.locationId
+              authPayload.name = managerData.name || "Manager Locatie"
+            } else {
+              authPayload.name = "Manager"
+            }
+          } catch (err) {
+            authPayload.name = "Manager"
+          }
+        }
+      }
+
       if (data?.token) {
         window.localStorage.setItem(
           'redistribuix_auth',
-          JSON.stringify({ token: data.token, role: targetRole })
+          JSON.stringify(authPayload)
         )
       }
 
-      if (targetRole === 'StandManager') {
-        navigate('/products')
+      if (decodedRole === 'StandManager' && authPayload.locationId) {
+        navigate(`/locations/${authPayload.locationId}`)
       } else {
-        navigate('/home')
+        navigate('/products')
       }
     } catch (err) {
-      console.error('Login failed', err)
       setError('Could not log in. Please check your email, password and role.')
     }
   }
@@ -90,7 +142,6 @@ function AuthPage() {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Role selector: Admin vs Stand Manager (for login only) */}
           <div className="flex items-center justify-between rounded-2xl bg-[#f3f0ff] px-2 py-1 text-xs font-semibold text-[#3e3e8a]">
             <span className="px-2">Log in as</span>
             <div className="flex gap-1 rounded-2xl bg-white/60 p-1">

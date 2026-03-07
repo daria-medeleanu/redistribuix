@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import SideMenu from '../components/SideMenu'
 
 function formatLabel(name) {
@@ -128,6 +128,7 @@ function ProductCard({ product, categories, index }) {
 
 function ProductsPage() {
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const initialLocationId = searchParams.get('locationId')
   const initialLocationName = searchParams.get('locationName')
 
@@ -139,6 +140,26 @@ function ProductsPage() {
   const [selectedLocationName] = useState(initialLocationName)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
+
+  const handleNavigate = (pageId) => {
+    console.log('se apasa asta', pageId)
+    if (pageId === 'products') {
+      navigate('/products')
+    }
+    if (pageId === 'locations') {
+      navigate('/locations')
+    }
+    if (pageId === 'profile') {
+      navigate('/profile')
+    }
+    if (pageId === 'home') {
+      navigate('/home')
+    }
+  }
+
+  const handleLogout = () => {
+    navigate('/auth')
+  }
 
   useEffect(() => {
     async function loadData() {
@@ -217,17 +238,17 @@ function ProductsPage() {
   }
 
   return (
-	<div className="min-h-screen bg-white text-[#4b5563] flex pl-16">
+	<div className="min-h-screen bg-white text-[#4b5563] flex">
       <SideMenu
         activePage="products"
-        onNavigate={() => {}}
+        onNavigate={handleNavigate}
         userName="Alexia"
-        onLogout={() => {}}
+        onLogout={handleLogout}
+        role="Admin"
       />
 
-      <div className="flex-1 flex flex-col px-10 py-10 overflow-y-auto">
+      <div className="flex-1 flex flex-col px-10 py-10 overflow-y-auto ml-16 relative z-10">
 
-        {/* ── Page header ── */}
         <header className="mb-7 flex flex-col items-center text-center">
           <h1 className="font-serif text-[1.9rem] font-bold leading-tight tracking-[-0.03em] text-[#2e0e04] mb-1">
             My{' '}
