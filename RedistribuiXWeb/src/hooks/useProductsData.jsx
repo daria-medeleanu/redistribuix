@@ -42,41 +42,40 @@ export function useProductsData() {
     }
   }, [location.state])
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setIsLoading(true)
-        setHasError(false)
+  const loadData = async () => {
+    try {
+      setIsLoading(true)
+      setHasError(false)
 
-        const headers = getAuthHeaders()
-        const opts = headers ? { headers } : undefined
+      const headers = getAuthHeaders()
+      const opts = headers ? { headers } : undefined
 
-        const [catRes, prodRes, stockRes] = await Promise.all([
-          fetch('/api/v1/Product/categories', opts),
-          fetch('/api/v1/Product', opts),
-          fetch('/api/v1/StockVelocity', opts),
-        ])
+      const [catRes, prodRes, stockRes] = await Promise.all([
+        fetch('/api/v1/Product/categories', opts),
+        fetch('/api/v1/Product', opts),
+        fetch('/api/v1/StockVelocity', opts),
+      ])
 
-        if (!catRes.ok || !prodRes.ok || !stockRes.ok)
-          throw new Error('Failed to fetch data')
+      if (!catRes.ok || !prodRes.ok || !stockRes.ok) throw new Error('Failed to fetch data')
 
-        const [catData, prodData, stockData] = await Promise.all([
-          catRes.json(),
-          prodRes.json(),
-          stockRes.json(),
-        ])
+      const [catData, prodData, stockData] = await Promise.all([
+        catRes.json(),
+        prodRes.json(),
+        stockRes.json(),
+      ])
 
-        setCategories(Array.isArray(catData) ? catData : [])
-        setProducts(Array.isArray(prodData) ? prodData : [])
-        setStockVelocities(Array.isArray(stockData) ? stockData : [])
-      } catch (error) {
-        console.error('Error loading products data:', error)
-        setHasError(true)
-      } finally {
-        setIsLoading(false)
-      }
+      setCategories(Array.isArray(catData) ? catData : [])
+      setProducts(Array.isArray(prodData) ? prodData : [])
+      setStockVelocities(Array.isArray(stockData) ? stockData : [])
+    } catch (error) {
+      console.error('Error loading products data:', error)
+      setHasError(true)
+    } finally {
+      setIsLoading(false)
     }
+  }
 
+  useEffect(() => {
     loadData()
   }, [])
 
@@ -103,5 +102,6 @@ export function useProductsData() {
     selectedLocationId: initialLocationId,
     selectedLocationName: initialLocationName,
     getCountForCategory,
+    reload: loadData,
   }
 }

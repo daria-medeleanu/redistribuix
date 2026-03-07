@@ -1,17 +1,25 @@
 import TransferActionButtons from './TransferActionButtons'
+import { STATUS_TRANSFER } from '../utils/transferHelpers'
 
 function StatusBadge({ status }) {
+  // status may be a numeric enum value from backend or a string label.
+  let label = status
+  if (typeof status === 'number') {
+    const found = Object.keys(STATUS_TRANSFER).find(k => STATUS_TRANSFER[k] === status)
+    label = found ?? String(status)
+  }
+
   const styles =
-    status === 'Pending'
+    label === 'Proposed' || label === 'Pending'
       ? 'bg-amber-50 text-amber-600 border-amber-200'
-      : status === 'Completed'
+      : label === 'Completed'
       ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
       : 'bg-[#eef0ff] text-[#4d4dff] border-[#c7c7ff]'
 
   return (
     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase border ${styles}`}>
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
-      {status || 'Suggested'}
+      {label || 'Suggested'}
     </span>
   )
 }
