@@ -84,7 +84,7 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
 
   function handleMenuClick(itemId) {
     if (itemId === 'home') {
-      navigate('/');
+      navigate('/home');
       onNavigate('home');
     } else if (itemId === 'products') {
       // Admins go to the global products page, stand managers to their own view
@@ -333,6 +333,36 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
               </span>
               <span className="pointer-events-none translate-x-[-6px] whitespace-nowrap text-[0.87rem] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
                 Suggested Transfers
+              </span>
+            </button>
+          </div>
+        )}
+        {user?.role === 'StandManager' && (
+          <div className="flex flex-col shrink-0">
+            <button
+              type="button"
+              title="Suggested Transfers"
+              onClick={() => handleMenuClick('suggestedTransfers')}
+              className={`relative flex h-11 w-full min-h-[44px] items-center overflow-hidden rounded-xl px-0 text-left text-[0.87rem] font-normal transition-colors ${
+                activePage === 'suggestedTransfers'
+                  ? "bg-[#e4e4ff] text-[#111827] font-medium"
+                  : "bg-transparent text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
+              }`}
+            >
+              <span
+                className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-md bg-[#4d4dff] transition-opacity ${
+                  activePage === 'suggestedTransfers' ? "opacity-100" : "opacity-0"
+                }`}
+              />
+              <span className="z-10 flex h-full w-[60px] min-w-[60px] items-center justify-center text-[1.15rem]">
+                <img
+                  src={courierIcon}
+                  alt="Suggested Transfers"
+                  className="h-8 w-8 object-contain"
+                />
+              </span>
+              <span className="pointer-events-none translate-x-[-6px] whitespace-nowrap text-[0.87rem] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                Transfers
               </span>
             </button>
           </div>

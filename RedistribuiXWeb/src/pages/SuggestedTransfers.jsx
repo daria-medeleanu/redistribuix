@@ -1,6 +1,6 @@
 import SideMenu from '../components/SideMenu'
 import TransferCard from '../components/TransferCard'
-import { useSuggestedTransfers } from '../hooks/useSuggestedTransfers'
+import { useSuggestedTransfers } from '../hooks/UseSuggestedTransfers'
 
 function SuggestedTransfersPage() {
   const {
@@ -13,8 +13,10 @@ function SuggestedTransfersPage() {
     denialReason,
     setDenialReason,
     actionResult,
+    userRole,
     handleApprove,
     handleReject,
+    handleComplete,
     toggleRejectPanel,
     cancelReject,
   } = useSuggestedTransfers()
@@ -80,8 +82,10 @@ function SuggestedTransfersPage() {
                     setDenialReason={setDenialReason}
                     onApprove={handleApprove}
                     onReject={handleReject}
+                    onComplete={handleComplete}
                     onToggleReject={toggleRejectPanel}
                     onCancelReject={cancelReject}
+                    userRole={userRole}
                   />
                 ))}
               </div>

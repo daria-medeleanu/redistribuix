@@ -18,11 +18,14 @@ function TransferActionButtons({
   onReject,
   onToggleReject,
   onCancelReject,
+  onComplete,
+  userRole,
 }) {
   const id = transfer.transferBatchId
   const isLoading = actionLoading === id
   const result = actionResult[id]
   const isRejecting = rejectingId === id
+  const isStandManager = userRole === 'StandManager'
 
   if (result === 'approved') {
     return (
@@ -40,9 +43,35 @@ function TransferActionButtons({
     )
   }
 
+  if (result === 'completed') {
+    return (
+      <div className="flex items-center gap-2 text-emerald-600 text-sm font-semibold">
+        <span>✓</span> Completed
+      </div>
+    )
+  }
+
   if (result === 'error') {
     return <div className="text-red-400 text-xs">⚠️ Something went wrong.</div>
   }
+
+  // Stand managers only see "Mark as Completed" button
+  if (isStandManager) {
+    return (
+      <div className="flex flex-col gap-2 items-end">
+        <button
+          type="button"
+          disabled={isLoading}
+          onClick={() => onComplete(transfer)}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+        >
+          {isLoading ? <SpinnerIcon /> : '✓'} Mark as Completed
+        </button>
+      </div>
+    )
+  }
+
+  // Admins see "Approve" and "Reject" buttons
 
   return (
     <div className="flex flex-col gap-2 items-end">
