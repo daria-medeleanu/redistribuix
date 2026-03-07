@@ -27,10 +27,8 @@ function App() {
 
           <div className="">
             <Routes>
-              <Route path="/" element={<RequireAuth><DashboardPage /></RequireAuth>} />
+              <Route path="/" element={<DashboardPage />} />
               <Route path="/home" element={<RequireAuth><HomePage /></RequireAuth>} />
-              {/* <Route path="/notes/new" element={<NoteEditorPage />} />
-              <Route path="/notes/:noteId" element={<NoteEditorPage />} /> */}
               {/* <Route path="/archive" element={<ArchivePage />} /> */}
               {/* <Route path="/settings" element={<SettingsPage />} /> */}
               <Route path="/auth" element={<AuthPage />} />
