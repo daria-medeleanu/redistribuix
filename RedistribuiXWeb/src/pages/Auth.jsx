@@ -108,7 +108,7 @@ function AuthPage() {
       }
 
       if (decodedRole === 'Admin') {
-        navigate('/productsAdmin')
+        navigate('/home')
       } else if (decodedRole === 'StandManager' && authPayload.locationId) {
         navigate(`/locations/${authPayload.locationId}`)
       } else {
