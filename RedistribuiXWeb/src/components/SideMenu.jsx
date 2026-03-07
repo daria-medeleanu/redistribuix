@@ -301,7 +301,7 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
                   className="h-5 w-5 object-contain"
                 />
               </span>
-              <span className="pointer-events-none translate-x-[-6px] whitespace-nowrap text-[0.87rem] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+              <span className="pointer-events-none translate-x-[-6px] whitespace-nowrap text-[0.87rem] font-medium opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
                 My Location
               </span>
             </button>
@@ -332,7 +332,7 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
                   className="h-8 w-8 object-contain"
                 />
               </span>
-              <span className="pointer-events-none translate-x-[-6px] whitespace-nowrap text-[0.87rem] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+              <span className="pointer-events-none translate-x-[-6px] whitespace-nowrap text-[0.87rem] font-medium opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
                 Suggested Transfers
               </span>
             </button>

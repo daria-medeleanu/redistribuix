@@ -3,8 +3,8 @@ import CategoryCard from '../components/CategoryCard'
 import ProductCard from '../components/ProductCard'
 import { useProductsData } from '../hooks/useProductsData'
 import { formatLabel } from '../utils/productHelpers'
-import { useState } from 'react';
-import AddProductModal from '../components/AddProductModal';
+// import { useState } from 'react';
+// import AddCategoryModal from '../components/AddCategoryModal';
 
 function ProductsPage() {
   const {
@@ -18,9 +18,9 @@ function ProductsPage() {
     isLoading,
     hasError,
     getCountForCategory,
-    reload,
+    //reload,
   } = useProductsData()
-  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  // const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900 pl-16">
@@ -89,23 +89,23 @@ function ProductsPage() {
         )}
       </div>
 
-      <AddProductModal
-        isOpen={isAddProductModalOpen}
-        onClose={() => setIsAddProductModalOpen(false)}
+      {/* <AddCategoryModal
+        isOpen={isAddCategoryModalOpen}
+        onClose={() => setIsAddCategoryModalOpen(false)}
         onSuccess={() => {
           if (typeof reload === 'function') reload()
         }}
-      />
+      /> */}
 
-      <button
-        onClick={() => setIsAddProductModalOpen(true)}
-        title="Add Product"
+      {/* <button
+        onClick={() => setIsAddCategoryModalOpen(true)}
+        title="Add Category"
         className="fixed bottom-8 right-8 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#4d4dff] text-white shadow-lg transition-all duration-200 hover:scale-105 hover:bg-[#3d3dff] hover:shadow-xl focus:outline-none md:bottom-10 md:right-10"
       >
         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
         </svg>
-      </button>
+      </button> */}
     </div>
   )
 }

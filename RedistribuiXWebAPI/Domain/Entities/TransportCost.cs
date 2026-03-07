@@ -10,8 +10,9 @@
         public Location SourceLocation { get; set; } = null!;
         public Location DestinationLocation { get; set; } = null!;
 
-        public TransportCost() { 
-            
+        public TransportCost()
+        {
+
         }
 
     }

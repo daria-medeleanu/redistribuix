@@ -33,12 +33,10 @@ namespace Application.Services
             var allStockVelocities = await stockVelocityRepository.GetAllAsync();
             var recommendations = new List<TransferBatchDto>();
 
-            // Exclude product/source/destination tuples that were already manually approved
             var manuallyApprovedBatches = await transferBatchRepository.GetByStatusAsync(Domain.Enums.StatusTransfer.ManuallyApproved);
             var manuallyApprovedSet = new HashSet<string>(manuallyApprovedBatches
                 .SelectMany(tb => tb.Products.Select(p => $"{tb.SourceLocationId}:{tb.DestinationLocationId}:{p.ProductId}")));
-            // Also build a set of destination+product pairs that were manually approved so
-            // we don't recommend the same product to the same destination from other sources.
+            
             var manuallyApprovedDestProductSet = new HashSet<string>(manuallyApprovedBatches
                 .SelectMany(tb => tb.Products.Select(p => $"{tb.DestinationLocationId}:{p.ProductId}")));
 
@@ -48,7 +46,6 @@ namespace Application.Services
             {
                 var productId = productGroup.Key;
 
-                // păstrăm împreună StockVelocity + forecast ML, ca să putem folosi DaysOfStock şi PredictedDailySales
                 var lowStockLocations = new List<(StockVelocity sv, SalesForecastDto forecast)>();
                 var highStockLocations = new List<(StockVelocity sv, SalesForecastDto forecast)>();
 
@@ -68,7 +65,6 @@ namespace Application.Services
                         highStockLocations.Add((sv, forecast100Days));
                 }
 
-                // construim starea pentru destinaţii (câtă nevoie au) şi surse (cât surplus au)
                 var destinationStates = lowStockLocations
                     .Select(ld =>
                     {
@@ -88,7 +84,7 @@ namespace Application.Services
                         };
                     })
                     .Where(x => x != null && x.RemainingQuantity > 0)
-                    .OrderByDescending(x => x.RemainingQuantity) // cele mai mari nevoi primele
+                    .OrderByDescending(x => x.RemainingQuantity)
                     .ToList();
 
                 var sourceStates = highStockLocations
@@ -110,7 +106,7 @@ namespace Application.Services
                         };
                     })
                     .Where(x => x != null && x.RemainingQuantity > 0)
-                    .OrderByDescending(x => x.RemainingQuantity) // cele mai mari surplusuri primele
+                    .OrderByDescending(x => x.RemainingQuantity)
                     .ToList();
 
                 if (!destinationStates.Any() || !sourceStates.Any())
@@ -118,13 +114,10 @@ namespace Application.Services
                     continue;
                 }
 
-                // matching: parcurgem destinaţiile (cele mai în nevoie primele)
-                // şi le alimentăm din surse (cele mai mari surplusuri) până se epuizează
                 var sourceIndex = 0;
 
                 foreach (var destState in destinationStates)
                 {
-                    // if this destination already has a manually approved transfer for this product, skip
                     var destProductKey = $"{destState.Stock.LocationId}:{productId}";
                     if (manuallyApprovedDestProductSet.Contains(destProductKey))
                     {
@@ -152,20 +145,31 @@ namespace Application.Services
 
                         if (transportCost == null)
                         {
-                            // nu există rută între aceste locaţii, trecem la următoarea sursă
                             sourceIndex++;
                             continue;
                         }
 
                         decimal totalSaleValue = quantityToTransfer * sourceState.Stock.Product.SalePrice;
                         decimal profit = totalSaleValue - transportCost.Cost;
-                        decimal score = CalculateTransferScore(profit, transportCost.Cost);
+
+                        double distanceKm = 0;
+                        try
+                        {
+                            var srcLoc = sourceState.Stock.Location;
+                            var dstLoc = destState.Stock.Location;
+                            if (srcLoc != null && dstLoc != null)
+                                distanceKm = GeoCalculator.GetDistanceInKm(srcLoc, dstLoc);
+                        }
+                        catch
+                        {
+                            distanceKm = 0;
+                        }
+
+                        decimal score = CalculateTransferScore(profit, transportCost.Cost, distanceKm);
 
                         var tupleKey = $"{sourceState.Stock.LocationId}:{destState.Stock.LocationId}:{productId}";
                         if (manuallyApprovedSet.Contains(tupleKey))
                         {
-                            // There's already a manually approved transfer for this product between these locations.
-                            // Skip creating a new recommendation from this source and move to next source.
                             sourceIndex++;
                             continue;
                         }
@@ -211,23 +215,19 @@ namespace Application.Services
                             {
                                 LocationId = sourceState.Stock.Location.LocationId,
                                 Name = sourceState.Stock.Location.Name,
-                                County = sourceState.Stock.Location.County,
-                                Locality = sourceState.Stock.Location.Locality,
                                 Profile = sourceState.Stock.Location.Profile,
                                 PurchasingPower = sourceState.Stock.Location.PurchasingPower,
-                                Latitude = sourceState.Stock.Location.Latitude,
-                                Longitude = sourceState.Stock.Location.Longitude
+                                County = sourceState.Stock.Location.County,
+                                Locality = sourceState.Stock.Location.Locality
                             },
                             DestinationLocation = new LocationDto
                             {
                                 LocationId = destState.Stock.Location.LocationId,
                                 Name = destState.Stock.Location.Name,
-                                County = destState.Stock.Location.County,
-                                Locality = destState.Stock.Location.Locality,
                                 Profile = destState.Stock.Location.Profile,
                                 PurchasingPower = destState.Stock.Location.PurchasingPower,
-                                Latitude = destState.Stock.Location.Latitude,
-                                Longitude = destState.Stock.Location.Longitude
+                                County = destState.Stock.Location.County,
+                                Locality = destState.Stock.Location.Locality
                             },
                             Products = batch.Products.Select(p => new TransferBatchProductsDto
                             {
@@ -240,7 +240,6 @@ namespace Application.Services
 
                         recommendations.Add(dto);
 
-                        // actualizăm starea: am consumat din surplusul sursei şi din nevoia destinaţiei
                         destState.RemainingQuantity -= quantityToTransfer;
                         sourceState.RemainingQuantity -= quantityToTransfer;
 
@@ -262,11 +261,27 @@ namespace Application.Services
             public int RemainingQuantity { get; set; }
         }
 
-        private static decimal CalculateTransferScore(decimal profit, decimal cost)
+        private static decimal CalculateTransferScore(decimal profit, decimal cost, double distanceKm)
         {
             if (cost == 0) return 0;
+
             decimal ratio = profit / cost;
-            return Math.Min(100, Math.Max(0, Math.Round(ratio * 20, 2)));
+
+            decimal distFactor = 1m;
+            try
+            {
+                var f = 1.0 / (1.0 + distanceKm / 200.0);
+                distFactor = (decimal)f;
+            }
+            catch
+            {
+                distFactor = 1m;
+            }
+
+            if (distFactor < 0.5m) distFactor = 0.5m;
+
+            var rawScore = ratio * 20m * distFactor;
+            return Math.Min(100, Math.Max(0, Math.Round(rawScore, 2)));
         }
     }
 }

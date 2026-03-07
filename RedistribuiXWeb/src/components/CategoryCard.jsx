@@ -28,7 +28,7 @@ function CategoryCard({ name, count, active, onClick }) {
       onClick={onClick}
       className={`
         group relative flex flex-col items-center justify-center gap-2
-        h-28 w-28 md:h-40 md:w-40 rounded-full border bg-white shadow-sm
+        h-48 w-48 md:h-48 md:w-48 rounded-full border bg-white shadow-sm
         transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4d4dff]/50 cursor-pointer
         ${active
           ? 'border-[#4d4dff] shadow-lg scale-105 bg-slate-50'
@@ -41,11 +41,11 @@ function CategoryCard({ name, count, active, onClick }) {
       )}
 
       <div
-        className={`flex items-center justify-center w-14 h-14 rounded-full bg-slate-50 overflow-hidden transition-transform duration-200 ${
+        className={`flex items-center justify-center w-18 h-18 rounded-full bg-slate-50 overflow-hidden transition-transform duration-200 ${
           active ? 'scale-110' : 'group-hover:scale-105'
         }`}
       >
-        <img src={icon} alt={label} className="w-10 h-10 object-contain" />
+        <img src={icon} alt={label} className="w-14 h-14 object-contain" />
       </div>
 
       <span
