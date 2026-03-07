@@ -33,6 +33,15 @@ namespace Application.Services
             var allStockVelocities = await stockVelocityRepository.GetAllAsync();
             var recommendations = new List<TransferBatchDto>();
 
+            // Exclude product/source/destination tuples that were already manually approved
+            var manuallyApprovedBatches = await transferBatchRepository.GetByStatusAsync(Domain.Enums.StatusTransfer.ManuallyApproved);
+            var manuallyApprovedSet = new HashSet<string>(manuallyApprovedBatches
+                .SelectMany(tb => tb.Products.Select(p => $"{tb.SourceLocationId}:{tb.DestinationLocationId}:{p.ProductId}")));
+            // Also build a set of destination+product pairs that were manually approved so
+            // we don't recommend the same product to the same destination from other sources.
+            var manuallyApprovedDestProductSet = new HashSet<string>(manuallyApprovedBatches
+                .SelectMany(tb => tb.Products.Select(p => $"{tb.DestinationLocationId}:{p.ProductId}")));
+
             var byProduct = allStockVelocities.GroupBy(sv => sv.ProductId);
 
             foreach (var productGroup in byProduct)
@@ -115,6 +124,12 @@ namespace Application.Services
 
                 foreach (var destState in destinationStates)
                 {
+                    // if this destination already has a manually approved transfer for this product, skip
+                    var destProductKey = $"{destState.Stock.LocationId}:{productId}";
+                    if (manuallyApprovedDestProductSet.Contains(destProductKey))
+                    {
+                        continue;
+                    }
                     while (destState.RemainingQuantity > 0 && sourceIndex < sourceStates.Count)
                     {
                         var sourceState = sourceStates[sourceIndex];
@@ -145,6 +160,15 @@ namespace Application.Services
                         decimal totalSaleValue = quantityToTransfer * sourceState.Stock.Product.SalePrice;
                         decimal profit = totalSaleValue - transportCost.Cost;
                         decimal score = CalculateTransferScore(profit, transportCost.Cost);
+
+                        var tupleKey = $"{sourceState.Stock.LocationId}:{destState.Stock.LocationId}:{productId}";
+                        if (manuallyApprovedSet.Contains(tupleKey))
+                        {
+                            // There's already a manually approved transfer for this product between these locations.
+                            // Skip creating a new recommendation from this source and move to next source.
+                            sourceIndex++;
+                            continue;
+                        }
 
                         var batchId = Guid.NewGuid();
 

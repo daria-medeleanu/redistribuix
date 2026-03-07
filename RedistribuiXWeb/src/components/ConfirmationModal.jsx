@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
-export default function ConfirmationModal({ isOpen, title, message, confirmText = 'Confirm', cancelText = 'Cancel', onConfirm, onCancel, isDangerous = false }) {
+export default function ConfirmationModal({ isOpen, title, message, confirmText = 'Confirm', cancelText = 'Cancel', onConfirm, onCancel, isDangerous = false, children }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleConfirm = async () => {
@@ -14,7 +15,7 @@ export default function ConfirmationModal({ isOpen, title, message, confirmText 
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl">
         
@@ -23,7 +24,11 @@ export default function ConfirmationModal({ isOpen, title, message, confirmText 
         </div>
 
         <div className="px-6 py-4">
-          <p className="text-sm text-slate-600 leading-relaxed">{message}</p>
+          {children ? (
+            children
+          ) : (
+            <p className="text-sm text-slate-600 leading-relaxed">{message}</p>
+          )}
         </div>
 
         <div className="border-t border-slate-100 flex gap-3 p-6">
@@ -47,6 +52,7 @@ export default function ConfirmationModal({ isOpen, title, message, confirmText 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
