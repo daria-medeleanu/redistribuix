@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import SideMenu from '../components/SideMenu'
 import CategoryCard from '../components/CategoryCard'
 import ProductCard from '../components/ProductCard'
@@ -22,12 +24,13 @@ function ProductsPage() {
     <div className="flex min-h-screen bg-slate-50 text-slate-900 pl-16">
       <SideMenu
         activePage="products"
-        onNavigate={() => {}}
+        onNavigate={handleNavigate}
         userName="Alexia"
-        onLogout={() => {}}
+        onLogout={handleLogout}
+        role="Admin"
       />
 
-      <div className="flex-1 flex flex-col px-10 py-10 overflow-y-auto">
+      <div className="flex-1 flex flex-col px-10 py-10 overflow-y-auto ml-16 relative z-10">
 
         <header className="mb-7 flex flex-col items-center text-center">
           <h1 className="font-serif text-[1.9rem] font-bold leading-tight tracking-[-0.03em] text-[#2e0e04] mb-1">

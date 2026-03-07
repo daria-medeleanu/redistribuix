@@ -15,9 +15,35 @@ const PURCHASING_POWER_OPTIONS = [
     { value: 2, label: 'Premium' }
 ]
 
+const geocodeLocation = async (county, locality) => {
+    const searchQuery = `${locality}, ${county}, Romania`
+    
+    const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&addressdetails=1&limit=1`,
+        {
+            headers: {
+                'User-Agent': 'RedistribuiX/1.0'
+            }
+        }
+    )
+    
+    const data = await response.json()
+    
+    if (data && data.length > 0) {
+        return {
+            lat: parseFloat(data[0].lat),
+            lon: parseFloat(data[0].lon)
+        }
+    }
+    
+    throw new Error('No coordinates found for this location')
+}
+
 export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
     const [formData, setFormData] = useState({
         name: '',
+        county: '',
+        locality: '',
         profile: 1,
         purchasingPower: 1
     })
@@ -25,6 +51,8 @@ export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitError, setSubmitError] = useState(null)
     const [nameError, setNameError] = useState('')
+    const [countyError, setCountyError] = useState('')
+    const [localityError, setLocalityError] = useState('')
 
     if (!isOpen) return null
 
@@ -35,6 +63,12 @@ export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
 
         if (name === 'name') {
             setNameError('')
+            setFormData(prev => ({ ...prev, [name]: value }))
+        } else if (name === 'county') {
+            setCountyError('')
+            setFormData(prev => ({ ...prev, [name]: value }))
+        } else if (name === 'locality') {
+            setLocalityError('')
             setFormData(prev => ({ ...prev, [name]: value }))
         } else {
             setFormData(prev => ({
@@ -47,34 +81,58 @@ export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
+        // Validate all fields
+        let hasError = false
+        
         if (!validateName(formData.name)) {
             setNameError('Location name is required')
-            return
+            hasError = true
         }
+        
+        if (!formData.county.trim()) {
+            setCountyError('County is required')
+            hasError = true
+        }
+        
+        if (!formData.locality.trim()) {
+            setLocalityError('Locality is required')
+            hasError = true
+        }
+        
+        if (hasError) return
 
         setIsSubmitting(true)
         setSubmitError(null)
 
-        const payload = {
-            name: formData.name.trim(),
-            profile: formData.profile,
-            purchasingPower: formData.purchasingPower
-        }
-
         try {
-            const response = await fetch(`${API_BASE}/Location`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-
-            if (!response.ok) {
-                const errorData = await response.text()
-                throw new Error(errorData || 'Failed to create location')
+            // Get coordinates from geocoding
+            const { lat, lon } = await geocodeLocation(formData.county.trim(), formData.locality.trim())
+            
+            const payload = {
+                name: formData.name.trim(),
+                county: formData.county.trim(),
+                locality: formData.locality.trim(),
+                latitude: lat,
+                longitude: lon,
+                profile: formData.profile,
+                purchasingPower: formData.purchasingPower
             }
+            console.log(payload);
+            // const response = await fetch(`${API_BASE}/Location`, {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(payload)
+            // })
 
-            setFormData({ name: '', profile: 1, purchasingPower: 1 })
+            // if (!response.ok) {
+            //     const errorData = await response.text()
+            //     throw new Error(errorData || 'Failed to create location')
+            // }
+
+            setFormData({ name: '', county: '', locality: '', profile: 1, purchasingPower: 1 })
             setNameError('')
+            setCountyError('')
+            setLocalityError('')
             onSuccess()
             onClose()
         } catch (error) {
@@ -119,6 +177,44 @@ export default function AddLocationModal({ isOpen, onClose, onSuccess }) {
                             }`}
                         />
                         {nameError && <p className="mt-1 text-xs text-red-600">{nameError}</p>}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">County</label>
+                            <input
+                                required
+                                type="text"
+                                name="county"
+                                placeholder="ex: Iași"
+                                value={formData.county}
+                                onChange={handleChange}
+                                className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
+                                    countyError
+                                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                        : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'
+                                }`}
+                            />
+                            {countyError && <p className="mt-1 text-xs text-red-600">{countyError}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Locality</label>
+                            <input
+                                required
+                                type="text"
+                                name="locality"
+                                placeholder="ex: Iași"
+                                value={formData.locality}
+                                onChange={handleChange}
+                                className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
+                                    localityError
+                                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                        : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'
+                                }`}
+                            />
+                            {localityError && <p className="mt-1 text-xs text-red-600">{localityError}</p>}
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

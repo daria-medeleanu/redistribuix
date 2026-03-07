@@ -31,7 +31,7 @@ function App() {
 
           <div className="">
             <Routes>
-              <Route path="/" element={<RequireAuth><DashboardPage /></RequireAuth>} />
+              <Route path="/" element={<DashboardPage />} />
               <Route path="/home" element={<RequireAuth><HomePage /></RequireAuth>} />
               <Route path="/products" element={<RequireAuth><ProductCategoriesStandManagerPage /></RequireAuth>} />
               <Route path="/productsAdmin" element={<RequireAuth><ProductsPage /></RequireAuth>}/>

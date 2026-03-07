@@ -123,7 +123,7 @@ export default function ProductCategoriesStandManagerPage() {
   }
 
   const handleNavigate = (pageId) => {
-    if (pageId === 'home') navigate('/')
+    if (pageId === 'home') navigate('/home')
     else if (pageId === 'locations') navigate('/locations')
     else if (pageId === 'profile') navigate('/profile')
     else if (pageId === 'products') {
