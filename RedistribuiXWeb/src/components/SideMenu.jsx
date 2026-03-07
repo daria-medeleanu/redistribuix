@@ -127,7 +127,7 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
     >
       <button
         type="button"
-        onClick={() => onNavigate("home")}
+        onClick={() => handleMenuClick("home")}
         className="flex h-[62px] items-center gap-3 border-b border-[#e5e7eb] px-4 cursor-pointer hover:bg-[#f9fafb] transition-colors"
       >
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#4d4dff] text-white text-xs font-bold">

@@ -122,7 +122,7 @@ export default function LocationsPage() {
     setActivePage(pageId);
 
     if (pageId === 'home') {
-        navigate('/');
+        navigate('/home');
     } else if (pageId === 'locations') {
         navigate('/locations');
     } else if(pageId === 'products') {
