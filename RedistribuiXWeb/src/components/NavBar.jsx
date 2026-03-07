@@ -13,7 +13,7 @@ function Navbar({ isHome = false }) {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   return (
-    <div className="flex w-full  flex-col md:flex-row gap-4 bg-white px-5 py-1 text-[#46190c]">
+    <div className="flex w-full  flex-col md:flex-row gap-4 bg-white px-5 py-1 text-[#000000]">
       <div className="flex w-full md:w-fit items-center justify-between md:justify-center">
         <div className="flex items-center gap-2.5">
           <img
@@ -29,7 +29,7 @@ function Navbar({ isHome = false }) {
           type="button"
           aria-label="Toggle navigation menu"
           aria-expanded={isMenuOpen}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#eddccf] text-[#8a5a43] transition hover:border-[#4d4dff] hover:text-[#4d4dff] md:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#d5cfed] text-[#000000] transition hover:border-[#4d4dff] hover:text-[#4d4dff] md:hidden"
           onClick={() => setIsMenuOpen((prev) => !prev)}
         >
           <span className="sr-only">Toggle navigation menu</span>

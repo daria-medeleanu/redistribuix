@@ -1,5 +1,5 @@
 import DashboardNavbar from '../components/NavBar'
-
+import RadialDots from '../components/LogoAnimation'
 function DashboardPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50">
@@ -15,7 +15,7 @@ function DashboardPage() {
             Intelligent stock optimization system for multi-location retail networks
           </p>
         </div>
-
+        {/* <RadialDots/> */}
         {/* About Section */}
         <section id="about" className="rounded-3xl border border-blue-200 bg-linear-to-br from-blue-50 to-indigo-50 p-8 shadow-lg sm:p-12">
           <div className="flex items-start gap-4">

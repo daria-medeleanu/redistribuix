@@ -28,7 +28,7 @@ function App() {
           <div className="">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
-              <Route path="/home" element={<RequireAuth><HomePage /></RequireAuth>} />
+              <Route path="/home" element={<HomePage />} />
               {/* <Route path="/archive" element={<ArchivePage />} /> */}
               {/* <Route path="/settings" element={<SettingsPage />} /> */}
               <Route path="/auth" element={<AuthPage />} />
