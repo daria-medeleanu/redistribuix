@@ -1,3 +1,5 @@
+import ConfirmationModal from './ConfirmationModal'
+
 function SpinnerIcon() {
   return (
     <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -101,35 +103,28 @@ function TransferActionButtons({
       </div>
 
       {isRejecting && (
-        <div className="flex flex-col gap-2 w-56 p-3 bg-red-50 border border-red-100 rounded-xl">
-          <label className="text-[10px] uppercase tracking-widest font-semibold text-red-400">
-            Denial reason (optional)
-          </label>
-          <input
-            type="text"
-            value={denialReason}
-            onChange={e => setDenialReason(e.target.value)}
-            placeholder="e.g. No transport available"
-            className="h-8 w-full rounded-lg border border-red-200 bg-white px-2 text-xs focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-300"
-          />
-          <div className="flex gap-1.5">
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={() => onReject(transfer)}
-              className="flex-1 px-2 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-semibold transition-all disabled:opacity-50"
-            >
-              Confirm
-            </button>
-            <button
-              type="button"
-              onClick={onCancelReject}
-              className="flex-1 px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 text-xs transition-all"
-            >
-              Cancel
-            </button>
+        <ConfirmationModal
+          isOpen={isRejecting}
+          title="Reject transfer"
+          confirmText="Confirm"
+          cancelText="Cancel"
+          onConfirm={async () => onReject(transfer)}
+          onCancel={onCancelReject}
+          isDangerous
+        >
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] uppercase tracking-widest font-semibold text-red-400">
+              Denial reason (optional)
+            </label>
+            <input
+              type="text"
+              value={denialReason}
+              onChange={e => setDenialReason(e.target.value)}
+              placeholder="e.g. No transport available"
+              className="h-9 w-full rounded-lg border border-red-200 bg-white px-2 text-xs focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-300"
+            />
           </div>
-        </div>
+        </ConfirmationModal>
       )}
     </div>
   )

@@ -9,13 +9,14 @@ const INITIAL_FORM_STATE = {
     phoneModelId: '',
     salePrice: 1,
     purchasePrice: 1,
-    currentQuantity: 0
+    currentQuantity: 0,
+    locationId: ''
 }
 
-export default function AddProductModal({ isOpen, onClose, onSuccess, locationId }) {
+export default function AddProductModal({ isOpen, onClose, onSuccess }) {
     const [formData, setFormData] = useState(INITIAL_FORM_STATE)
-    
     const [phoneModels, setPhoneModels] = useState([])
+    const [locations, setLocations] = useState([])
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitError, setSubmitError] = useState(null)
     const [skuError, setSkuError] = useState('')
@@ -23,13 +24,22 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
     useEffect(() => {
         if (isOpen) {
             fetch(`${API_BASE}/PhoneModel`)
-                .then(res => res.json())
-                .then(data => {
+                .then((res) => res.json())
+                .then((data) => {
                     if (Array.isArray(data)) {
                         setPhoneModels(data)
                     }
                 })
-                .catch(() => setPhoneModels([]))
+                .catch(() => setPhoneModels([]));
+
+            fetch(`${API_BASE}/Location`)
+                .then((res) => res.json())
+                .then((data) => {
+                    if (Array.isArray(data)) {
+                        setLocations(data)
+                    }
+                })
+                .catch(() => setLocations([]));
         }
     }, [isOpen])
 
@@ -42,14 +52,14 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
 
     const handleChange = (e) => {
         const { name, value, type } = e.target
-        
+
         if (name === 'sku') {
             setSkuError('')
-            setFormData(prev => ({ ...prev, [name]: value.toUpperCase() }))
-        } else if (name === 'category') {
-            setFormData(prev => ({ ...prev, [name]: parseInt(value, 10) }))
+            setFormData((prev) => ({ ...prev, [name]: value.toUpperCase() }))
+        } else if (name === 'category' || name === 'locationId') {
+            setFormData((prev) => ({ ...prev, [name]: parseInt(value, 10) }))
         } else {
-            setFormData(prev => ({
+            setFormData((prev) => ({
                 ...prev,
                 [name]: type === 'number' ? Number(value) : value
             }))
@@ -58,7 +68,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        
+
         if (!validateSku(formData.sku)) {
             setSkuError('Format invalid. Exemplu acceptat: IP15-CS-LTH')
             return
@@ -72,7 +82,8 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
             name: formData.name,
             category: formData.category,
             salePrice: formData.salePrice,
-            purchasePrice: formData.purchasePrice
+            purchasePrice: formData.purchasePrice,
+            locationId: formData.locationId
         }
 
         if (formData.phoneModelId && formData.phoneModelId.trim() !== '') {
@@ -83,7 +94,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
             const response = await fetch(`${API_BASE}/Product`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             })
@@ -91,32 +102,6 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
             if (!response.ok) {
                 const errorData = await response.text()
                 throw new Error(errorData || 'Failed to create product')
-            }
-
-            const productId = await response.text()
-
-            if (locationId && formData.currentQuantity >= 0) {
-                const stockPayload = {
-                    locationId: locationId,
-                    productId: productId.replace(/"/g, ''),
-                    currentQuantity: formData.currentQuantity,
-                    salesLast30Days: 0,
-                    salesLast100Days: 0,
-                    lastInboundDate: new Date().toISOString(),
-                    lastInventoryDate: new Date().toISOString()
-                }
-
-                const stockResponse = await fetch(`${API_BASE}/StockVelocity`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(stockPayload)
-                })
-
-                if (!stockResponse.ok) {
-                    throw new Error('Product created but failed to add stock')
-                }
             }
 
             setFormData(INITIAL_FORM_STATE)
@@ -151,25 +136,40 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">SKU</label>
-                        <input 
-                            required 
-                            type="text" 
-                            name="sku" 
+                        <input
+                            required
+                            type="text"
+                            name="sku"
                             placeholder="ex: IP15-CS-LTH"
-                            value={formData.sku} 
-                            onChange={handleChange} 
+                            value={formData.sku}
+                            onChange={handleChange}
                             className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
-                                skuError 
-                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                                skuError
+                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                                     : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500'
-                            }`} 
+                            }`}
                         />
                         {skuError && <p className="mt-1 text-xs text-red-600">{skuError}</p>}
                     </div>
-                    
+
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Product Name</label>
-                        <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+                        <select
+                            required
+                            name="locationId"
+                            value={formData.locationId}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        >
+                            <option value="" disabled>
+                                Select a location
+                            </option>
+                            {locations.map((location) => (
+                                <option key={location.locationId} value={location.locationId}>
+                                    {location.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -207,18 +207,32 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
                         </div>
                     </div>
 
-                    {locationId && (
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Initial Stock Quantity</label>
-                            <input required type="number" min="0" name="currentQuantity" value={formData.currentQuantity} onChange={handleChange} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
-                        </div>
-                    )}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Quantity</label>
+                        <input
+                            required
+                            type="number"
+                            name="currentQuantity"
+                            min="0"
+                            value={formData.currentQuantity}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        />
+                    </div>
 
                     <div className="pt-4 flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                        >
                             Cancel
                         </button>
-                        <button type="submit" disabled={isSubmitting} className="rounded-lg bg-[#4d4dff] px-4 py-2 text-sm font-medium text-white hover:bg-[#3d3dff] disabled:opacity-50 flex items-center gap-2">
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="rounded-lg bg-[#4d4dff] px-4 py-2 text-sm font-medium text-white hover:bg-[#3d3dff] disabled:opacity-50 flex items-center gap-2"
+                        >
                             {isSubmitting ? 'Saving...' : 'Save Product'}
                         </button>
                     </div>

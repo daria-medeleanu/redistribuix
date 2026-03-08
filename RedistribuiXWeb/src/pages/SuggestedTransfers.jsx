@@ -7,6 +7,7 @@ function SuggestedTransfersPage() {
   const navigate = useNavigate()
   const {
     transfers,
+    manuallyApproved,
     productsList,
     isLoading,
     hasError,
@@ -73,7 +74,7 @@ function SuggestedTransfersPage() {
               </div>
             )}
 
-            {transfers.length === 0 ? (
+            {transfers?.length === 0 ? (
               <EmptyState />
             ) : (
               <div className="flex flex-col gap-5">
@@ -95,6 +96,35 @@ function SuggestedTransfersPage() {
                     userRole={userRole}
                   />
                 ))}
+
+                {manuallyApproved?.length > 0 && (
+                  <>
+                    <div className="flex items-center gap-4 mt-6 mb-4">
+                      <span className="text-[10px] tracking-[0.22em] uppercase font-semibold text-[#3e3e8a]">
+                        {manuallyApproved.length} approved
+                      </span>
+                      <div className="flex-1 h-px bg-gradient-to-r from-[#a6a6ff] to-transparent" />
+                    </div>
+                    <div className="flex flex-col gap-5">
+                      {manuallyApproved.map((transfer, index) => (
+                        <TransferCard
+                          key={transfer.transferBatchId ?? (`ma-` + index)}
+                          transfer={transfer}
+                          productsList={productsList}
+                          actionLoading={actionLoading}
+                          actionResult={actionResult}
+                          rejectingId={rejectingId}
+                          denialReason={denialReason}
+                          setDenialReason={setDenialReason}
+                          onApprove={handleApprove}
+                          onReject={handleReject}
+                          onToggleReject={toggleRejectPanel}
+                          onCancelReject={cancelReject}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </section>

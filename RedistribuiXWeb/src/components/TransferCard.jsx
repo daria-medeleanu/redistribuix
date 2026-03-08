@@ -1,4 +1,5 @@
 import TransferActionButtons from './TransferActionButtons'
+import { STATUS_TRANSFER } from '../utils/transferHelpers'
 
 const STATUS_MAP = {
   0: 'Proposed',

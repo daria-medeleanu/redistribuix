@@ -25,6 +25,7 @@ function getAuthUser() {
 }
 export function useSuggestedTransfers(status = 2, includeActions = true) {
   const [transfers, setTransfers] = useState([])
+  const [manuallyApproved, setManuallyApproved] = useState([])
   const [productsList, setProductsList] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
@@ -83,9 +84,10 @@ export function useSuggestedTransfers(status = 2, includeActions = true) {
           throw new Error('Failed to fetch data');
         }
 
-        const [transferData, productsData] = await Promise.all([
+        const [transferData, productsData, approvedData] = await Promise.all([
           transferRes.json(),
           productsRes.json(),
+          approvedRes.json(),
         ])
         
         console.log('[API Response] Transfers received:', {
@@ -126,9 +128,9 @@ export function useSuggestedTransfers(status = 2, includeActions = true) {
 
       if (!res.ok) throw new Error()
       setActionResult(prev => ({ ...prev, [id]: 'approved' }))
-      setTransfers(prev =>
-        prev.map(t => t.transferBatchId === id ? { ...t, status: 'ManuallyApproved' } : t)
-      )
+      // remove from recommendations list and add to manually approved list
+      setTransfers(prev => prev.filter(t => t.transferBatchId !== id))
+      setManuallyApproved(prev => [{ ...transfer, status: 'ManuallyApproved' }, ...prev])
     } catch {
       setActionResult(prev => ({ ...prev, [id]: 'error' }))
     } finally {
@@ -158,6 +160,8 @@ export function useSuggestedTransfers(status = 2, includeActions = true) {
       setTransfers(prev =>
         prev.map(t => t.transferBatchId === id ? { ...t, status: 'Rejected' } : t)
       )
+      // if rejected, also ensure it's not present in manually approved
+      setManuallyApproved(prev => prev.filter(t => t.transferBatchId !== id))
       setRejectingId(null)
       setDenialReason('')
     } catch {
@@ -208,6 +212,7 @@ export function useSuggestedTransfers(status = 2, includeActions = true) {
 
   return {
     transfers,
+    manuallyApproved,
     productsList,
     isLoading,
     hasError,
