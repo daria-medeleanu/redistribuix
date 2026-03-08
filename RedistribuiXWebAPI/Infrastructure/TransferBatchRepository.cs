@@ -46,7 +46,17 @@ namespace Infrastructure
                 .Where(tb => tb.Status == status)
                 .ToListAsync();
         }
-
+        public async Task<IEnumerable<TransferBatch>> GetByStatusAndLocationAsync(Guid locationId, StatusTransfer status)
+        {
+            return await context.TransferBatches
+                .Include(tb => tb.SourceLocation)
+                .Include(tb => tb.DestinationLocation)
+                .Include(tb => tb.Products)
+                    .ThenInclude(p => p.Product)
+                .Where(tb => tb.Status == status
+                          && (tb.DestinationLocationId == locationId))
+                .ToListAsync();
+        }
         public async Task AddAsync(TransferBatch transferBatch)
         {
             await context.TransferBatches.AddAsync(transferBatch);

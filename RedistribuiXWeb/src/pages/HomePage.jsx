@@ -23,6 +23,7 @@ function HomePage() {
 	}
 
 	const handleLogout = () => {
+		console.log('it gets here')
 		navigate('/auth')
 	}
 
