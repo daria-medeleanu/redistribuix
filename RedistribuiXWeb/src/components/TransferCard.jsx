@@ -1,25 +1,38 @@
 import TransferActionButtons from './TransferActionButtons'
 import { STATUS_TRANSFER } from '../utils/transferHelpers'
 
-function StatusBadge({ status }) {
-  // status may be a numeric enum value from backend or a string label.
-  let label = status
-  if (typeof status === 'number') {
-    const found = Object.keys(STATUS_TRANSFER).find(k => STATUS_TRANSFER[k] === status)
-    label = found ?? String(status)
-  }
+const STATUS_MAP = {
+  0: 'Proposed',
+  1: 'AutoApproved',
+  2: 'ManuallyApproved',
+  3: 'Rejected',
+  4: 'Completed',
+}
 
+function getStatusText(status) {
+  if (typeof status === 'number') {
+    return STATUS_MAP[status] || 'Unknown'
+  }
+  return status || 'Suggested'
+}
+
+function StatusBadge({ status }) {
+  const statusText = getStatusText(status)
   const styles =
-    label === 'Proposed' || label === 'Pending'
+    statusText === 'Pending'
       ? 'bg-amber-50 text-amber-600 border-amber-200'
-      : label === 'Completed'
+      : statusText === 'Completed'
       ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+      : statusText === 'ManuallyApproved'
+      ? 'bg-blue-50 text-blue-600 border-blue-200'
+      : statusText === 'Rejected'
+      ? 'bg-red-50 text-red-600 border-red-200'
       : 'bg-[#eef0ff] text-[#4d4dff] border-[#c7c7ff]'
 
   return (
     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase border ${styles}`}>
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
-      {label || 'Suggested'}
+      {statusText}
     </span>
   )
 }
@@ -75,12 +88,15 @@ function TransferCard({
   setDenialReason,
   onApprove,
   onReject,
+  onComplete,
   onToggleReject,
   onCancelReject,
+  userRole,
+  isCompleted,
 }) {
   return (
     <article className="group relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-[#a6a6ff]">
-      <div className="h-1 w-full bg-gradient-to-r from-[#4d4dff] via-[#a6a6ff] to-[#dbdbff]" />
+      <div className="h-1 w-full bg-linear-to-r from-[#4d4dff] via-[#a6a6ff] to-[#dbdbff]" />
 
       <div className="p-6 flex flex-col gap-5">
 
@@ -133,8 +149,11 @@ function TransferCard({
             setDenialReason={setDenialReason}
             onApprove={onApprove}
             onReject={onReject}
+            onComplete={onComplete}
             onToggleReject={onToggleReject}
             onCancelReject={onCancelReject}
+            userRole={userRole}
+            isCompleted={isCompleted}
           />
         </div>
       </div>

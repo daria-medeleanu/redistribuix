@@ -39,6 +39,12 @@ namespace Infrastructure
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
+        public async Task<StockVelocity?> GetByLocationAndProductAsync(Guid locationId, Guid productId)
+        {
+            return await context.StockVelocities
+                .FirstOrDefaultAsync(s => s.LocationId == locationId && s.ProductId == productId);
+        }
+
         public async Task AddAsync(StockVelocity stockVelocity)
         {
             await context.StockVelocities.AddAsync(stockVelocity);
