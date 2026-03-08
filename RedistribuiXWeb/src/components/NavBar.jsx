@@ -1,4 +1,5 @@
-import logoRedistribuiX from '../assets/redistribuix_logo.png'
+import logoRedistribuiX from '../assets/redistribuix-logo.png'
+import logoWriting from '../assets/redistribuix-writing.png'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -18,7 +19,11 @@ function Navbar({ isHome = false }) {
         <div className="flex items-center gap-2.5">
           <img
             src={logoRedistribuiX}
-            className="h-25"
+            className="h-20"
+          />
+          <img
+            src={logoWriting}
+            className="h-10"
           />
           <div>
             {/* <p className="text-[12px] uppercase text-[#4d4dff]">RedistribuiX</p> */}

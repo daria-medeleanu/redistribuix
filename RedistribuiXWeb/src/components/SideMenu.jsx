@@ -5,6 +5,8 @@ import boxIcon from "../assets/icons/box.png";
 import locationIcon from "../assets/icons/location.png";
 import userIcon from "../assets/icons/user.png";
 import courierIcon from "../assets/icons/courier.png";
+import logoRedistribuiX from '../assets/redistribuix-logo.png'
+import logoWriting from '../assets/redistribuix-writing.png'
 
 const PRODUCT_CATEGORIES = ["Case", "ScreenProtector", "Cable", "Charger", "All"];
 
@@ -161,12 +163,16 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
         onClick={() => handleMenuClick("home")}
         className="flex h-[62px] items-center gap-3 border-b border-[#e5e7eb] px-4 cursor-pointer hover:bg-[#f9fafb] transition-colors"
       >
-        <div className="flex h-10 w-10 min-w-[40px] shrink-0 items-center justify-center rounded-lg bg-[#4d4dff] text-white text-xs font-bold">
-          R
-        </div>
-        <span className="pointer-events-none -translate-x-2 whitespace-nowrap text-sm font-semibold tracking-tight text-[#111827] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
-          RedistribuiX
-        </span>
+        <img
+          src={logoRedistribuiX}
+          alt="RedistribuiX Logo"
+          className="h-10 w-10 min-w-[40px] shrink-0 object-contain"
+        />
+        <img
+          src={logoWriting}
+          alt="RedistribuiX"
+          className="h-8 pointer-events-none -translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+        />
       </button>
 
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-2 py-3 pb-6 custom-scrollbar">
