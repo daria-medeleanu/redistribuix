@@ -3,8 +3,7 @@ export const STATUS_TRANSFER = {
   AutoApproved: 1,
   ManuallyApproved: 2,
   Rejected: 3,
-  Shipped: 4,
-  Completed: 5,
+  Completed: 4,
 }
 
 export function getAuthToken() {

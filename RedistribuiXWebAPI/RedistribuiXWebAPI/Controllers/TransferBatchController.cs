@@ -78,5 +78,13 @@ namespace RedistribuiXWebAPI.Controllers
             var transferBatches = await mediator.Send(new GetTransferBatchesByStatusQuery { Status = status });
             return Ok(transferBatches);
         }
+
+        [HttpGet("location/{locationId}/status/{status}")]
+        public async Task<ActionResult<IEnumerable<TransferBatchDto>>> GetByStatusAndLocation(Guid locationId, StatusTransfer status)
+        {
+            var transferBatches = await mediator.Send(
+                new GetStatusTransferBatchesByLocationQuery { LocationId = locationId, Status = status });
+            return Ok(transferBatches);
+        }
     }
 }

@@ -7,7 +7,6 @@ namespace Domain.Enums
         AutoApproved,
         ManuallyApproved,
         Rejected,
-        Shipped, 
         Completed,
     }
 }

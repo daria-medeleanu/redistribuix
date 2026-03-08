@@ -286,10 +286,10 @@ export default function ProductCategoriesStandManagerPage() {
                                 </span>
                               </td>
                               <td className="px-6 py-4 text-right text-slate-900 font-medium">
-                               {(product.purchasePrice || 0).toFixed(2)} RON
+                               {(product.purchasePrice || 0).toFixed(2)} ron
                               </td>
                               <td className="px-6 py-4 text-right text-[#4d4dff] font-medium">
-                               {(product.salePrice || 0).toFixed(2)} RON
+                               {(product.salePrice || 0).toFixed(2)} ron
                               </td>
                             </tr>
                           ))

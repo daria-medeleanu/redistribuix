@@ -84,7 +84,7 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
 
   function handleMenuClick(itemId) {
     if (itemId === 'home') {
-      navigate('/');
+      navigate('/home');
       onNavigate('home');
     } else if (itemId === 'products') {
       // Admins go to the global products page, stand managers to their own view
@@ -102,10 +102,20 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
       navigate('/profile');
       onNavigate('profile');
     } else if (itemId === 'suggestedTransfers') {
-      navigate('/suggestedTransfer');
-      onNavigate('suggestedTransfers');
+      // Don't navigate directly, let dropdown handle it
+      return;
     } else {
       onNavigate(itemId);
+    }
+  }
+
+  function handleTransferClick(type) {
+    if (type === 'new') {
+      navigate('/suggestedTransfer');
+      onNavigate('suggestedTransfers');
+    } else if (type === 'completed') {
+      navigate('/completedTransfers');
+      onNavigate('completedTransfers');
     }
   }
 
@@ -309,33 +319,145 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
         )}
 
         {user?.role === 'Admin' && (
-          <div className="flex flex-col shrink-0">
+          <div 
+            className="flex flex-col shrink-0"
+            onMouseEnter={() => setHoveredDropdown('suggestedTransfers')}
+            onMouseLeave={() => setHoveredDropdown(null)}
+          >
             <button
               type="button"
-              title="Suggested Transfers"
+              title="Transfers"
               onClick={() => handleMenuClick('suggestedTransfers')}
               className={`relative flex h-11 w-full min-h-[44px] items-center overflow-hidden rounded-xl px-0 text-left text-[0.87rem] font-normal transition-colors ${
-                activePage === 'suggestedTransfers'
+                activePage === 'suggestedTransfers' || activePage === 'completedTransfers'
                   ? "bg-[#e4e4ff] text-[#111827] font-medium"
                   : "bg-transparent text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
               }`}
             >
               <span
                 className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-md bg-[#4d4dff] transition-opacity ${
-                  activePage === 'suggestedTransfers' ? "opacity-100" : "opacity-0"
+                  activePage === 'suggestedTransfers' || activePage === 'completedTransfers' ? "opacity-100" : "opacity-0"
                 }`}
               />
               <span className="z-10 flex h-full w-[60px] min-w-[60px] items-center justify-center text-[1.15rem]">
                 <img
                   src={courierIcon}
-                  alt="Suggested Transfers"
+                  alt="Transfers"
                   className="h-8 w-8 object-contain"
                 />
               </span>
-              <span className="pointer-events-none translate-x-[-6px] whitespace-nowrap text-[0.87rem] font-medium opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
-                Suggested Transfers
-              </span>
+              <div className="pointer-events-none flex flex-1 items-center justify-between pr-3 translate-x-[-6px] whitespace-nowrap opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                <span>Transfers</span>
+                <svg 
+                  className={`h-4 w-4 text-[#9ca3af] transition-transform duration-300 ease-in-out ${hoveredDropdown === 'suggestedTransfers' ? "rotate-180 text-[#4d4dff]" : "rotate-0"}`} 
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </button>
+            
+            <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+              hoveredDropdown === 'suggestedTransfers' ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+            }`}>
+              <div className="overflow-hidden">
+                <div className="ml-[30px] mt-1 mb-2 flex flex-col gap-1 border-l-2 border-[#e5e7eb] pl-3 py-1">
+                  <button
+                    type="button"
+                    onClick={() => handleTransferClick('new')}
+                    className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-[0.8rem] transition-all duration-200 ${
+                      activePage === 'suggestedTransfers'
+                        ? "bg-[#eef0ff] font-medium text-[#4d4dff]"
+                        : "text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
+                    }`}
+                  >
+                    <span className="truncate">New Transfers</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleTransferClick('completed')}
+                    className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-[0.8rem] transition-all duration-200 ${
+                      activePage === 'completedTransfers'
+                        ? "bg-[#eef0ff] font-medium text-[#4d4dff]"
+                        : "text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
+                    }`}
+                  >
+                    <span className="truncate">Completed Transfers</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {user?.role === 'StandManager' && (
+          <div 
+            className="flex flex-col shrink-0"
+            onMouseEnter={() => setHoveredDropdown('suggestedTransfers')}
+            onMouseLeave={() => setHoveredDropdown(null)}
+          >
+            <button
+              type="button"
+              title="Transfers"
+              onClick={() => handleMenuClick('suggestedTransfers')}
+              className={`relative flex h-11 w-full min-h-[44px] items-center overflow-hidden rounded-xl px-0 text-left text-[0.87rem] font-normal transition-colors ${
+                activePage === 'suggestedTransfers' || activePage === 'completedTransfers'
+                  ? "bg-[#e4e4ff] text-[#111827] font-medium"
+                  : "bg-transparent text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
+              }`}
+            >
+              <span
+                className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-md bg-[#4d4dff] transition-opacity ${
+                  activePage === 'suggestedTransfers' || activePage === 'completedTransfers' ? "opacity-100" : "opacity-0"
+                }`}
+              />
+              <span className="z-10 flex h-full w-[60px] min-w-[60px] items-center justify-center text-[1.15rem]">
+                <img
+                  src={courierIcon}
+                  alt="Transfers"
+                  className="h-8 w-8 object-contain"
+                />
+              </span>
+              <div className="pointer-events-none flex flex-1 items-center justify-between pr-3 translate-x-[-6px] whitespace-nowrap opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                <span>Transfers</span>
+                <svg 
+                  className={`h-4 w-4 text-[#9ca3af] transition-transform duration-300 ease-in-out ${hoveredDropdown === 'suggestedTransfers' ? "rotate-180 text-[#4d4dff]" : "rotate-0"}`} 
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+            
+            <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+              hoveredDropdown === 'suggestedTransfers' ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+            }`}>
+              <div className="overflow-hidden">
+                <div className="ml-[30px] mt-1 mb-2 flex flex-col gap-1 border-l-2 border-[#e5e7eb] pl-3 py-1">
+                  <button
+                    type="button"
+                    onClick={() => handleTransferClick('new')}
+                    className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-[0.8rem] transition-all duration-200 ${
+                      activePage === 'suggestedTransfers'
+                        ? "bg-[#eef0ff] font-medium text-[#4d4dff]"
+                        : "text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
+                    }`}
+                  >
+                    <span className="truncate">New Transfers</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleTransferClick('completed')}
+                    className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-[0.8rem] transition-all duration-200 ${
+                      activePage === 'completedTransfers'
+                        ? "bg-[#eef0ff] font-medium text-[#4d4dff]"
+                        : "text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
+                    }`}
+                  >
+                    <span className="truncate">Completed Transfers</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </nav>
