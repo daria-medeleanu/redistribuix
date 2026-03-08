@@ -10,6 +10,7 @@ import SuggestedTransfersPage from "./pages/SuggestedTransfers"
 import CompletedTransfersPage from "./pages/CompletedTransfers"
 import ProfilePage from './pages/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
+import DailySalesPage from './pages/DailySalesPage'
 import './App.css'
 
 function RequireAuth({ children }) {
@@ -41,6 +42,8 @@ function App() {
               <Route path="/locations" element={<RequireAuth><LocationsPage /></RequireAuth>} />
               <Route path="/locations/:id" element={<RequireAuth><SingleLocationPage /></RequireAuth>} />
               <Route path="/suggestedTransfer" element={<RequireAuth><SuggestedTransfersPage /></RequireAuth>} />
+              <Route path="/daily-sales" element={<RequireAuth><DailySalesPage /></RequireAuth>} />
+              <Route path="/daily-sales/:locationId" element={<RequireAuth><DailySalesPage /></RequireAuth>} />
               <Route path="/completedTransfers" element={<RequireAuth><CompletedTransfersPage /></RequireAuth>} />
               <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
               <Route path="/auth" element={<AuthPage />} />

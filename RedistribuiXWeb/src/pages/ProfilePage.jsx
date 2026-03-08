@@ -390,6 +390,78 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 )}
+
+                {userRole === 'StandManager' && (
+                  <div className="border-t border-slate-100 pt-6">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4">Your Functions & Permissions</h3>
+                    <div className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 p-6">
+                      <p className="text-sm text-blue-900 font-medium mb-4">
+                        As a Stand Manager, you have the following capabilities:
+                      </p>
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold shrink-0 mt-0.5">
+                            ✓
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900">View Product Inventory</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Access detailed information about all products at your assigned location</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold shrink-0 mt-0.5">
+                            ✓
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900">Record Daily Sales</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Log sales transactions for individual products directly from your location</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold shrink-0 mt-0.5">
+                            ✓
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900">Monitor Stock Levels</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Track current stock quantities, low stock alerts, and stockout items</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold shrink-0 mt-0.5">
+                            ✓
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900">View Sales Analytics & Forecasting</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Access 30-day and 100-day sales data, stock velocity metrics, and AI-powered predictions for the next 100 days based on previous sales patterns</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold shrink-0 mt-0.5">
+                            ✓
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900">View Sales History</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Review complete daily sales logs and transaction history for your location</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold shrink-0 mt-0.5">
+                            ✓
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900">Export Location Data</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Download inventory and sales reports in Excel format</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
                
                 <div className="border-t border-slate-100 pt-6">
                   <div className="flex flex-col items-center justify-center gap-3">

@@ -4,6 +4,7 @@ export const NAV_ITEMS = [
   { id: "locations",    label: "Locations",       icon: "🏢" },
   { id: "products", label: "Products", icon: "📅" },
   { id: "profile",  label: "Profile",  icon: "👤" },
+  { id: "daily_sales",  label: "Daily Sales",  icon: "📊" },
 ];
 
 export function getInitials(name) {

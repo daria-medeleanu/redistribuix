@@ -9,8 +9,8 @@ function ProductCard({ product, categories, index, stockQuantity }) {
 
   return (
     <article
-      className="group relative flex flex-col bg-white rounded-2xl border border-[#eddccf] overflow-hidden
-        transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#46190c]/8 hover:border-[#d4b0a0]"
+      className="group relative flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden
+        transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#46190c]/8 hover:border-[#4d4dff]"
       style={{ animationDelay: `${index * 40}ms` }}
     >
       <div className="h-1 w-full bg-gradient-to-r from-[#4d4dff] via-[#a6a6ff] to-[#dbdbff]

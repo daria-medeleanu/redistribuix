@@ -5,6 +5,7 @@ import boxIcon from "../assets/icons/box.png";
 import locationIcon from "../assets/icons/location.png";
 import userIcon from "../assets/icons/user.png";
 import courierIcon from "../assets/icons/courier.png";
+import salesLogIcon from "../assets/icons/sales-log.png"; // Am adăugat un icon placeholder, asigură-te că există sau folosește un emoji
 
 const PRODUCT_CATEGORIES = ["Case", "ScreenProtector", "Cable", "Charger", "All"];
 
@@ -87,7 +88,6 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
       navigate('/home');
       onNavigate('home');
     } else if (itemId === 'products') {
-      // Admins go to the global products page, stand managers to their own view
       if (userRole === 'Admin') {
         navigate('/productsAdmin');
         onNavigate('productsAdmin');
@@ -102,8 +102,11 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
       navigate('/profile');
       onNavigate('profile');
     } else if (itemId === 'suggestedTransfers') {
-      // Don't navigate directly, let dropdown handle it
-      return;
+      navigate('/suggestedTransfer');
+      onNavigate('suggestedTransfers');
+    } else if (itemId === 'daily_sales') {
+      navigate('/daily-sales');
+      onNavigate('daily_sales');
     } else {
       onNavigate(itemId);
     }
@@ -133,14 +136,12 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
 
   function handleCategoryClick(categoryName) {
     if (userRole === 'Admin') {
-      // Admin: send category name (or 'All') to the admin products page
       const adminState = {
         selectedCategory: categoryName === 'All' ? 'All' : categoryName,
       };
       navigate('/productsAdmin', { state: adminState });
       onNavigate('products');
     } else {
-      // Stand manager: use stand manager products route
       const categoryId = CATEGORY_ID_MAP[categoryName];
       if (categoryId === 'all') {
         navigate('/products', { state: { selectedCategory: 'all' } });
@@ -176,9 +177,10 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
         
         {NAV_ITEMS.filter(item => {
           if (user?.role === 'StandManager') {
-            return item.id === 'products' || item.id === 'profile';
+            return item.id === 'products' || item.id === 'profile' || item.id === 'daily_sales';
           }
-          return true;
+          // Pentru Admin și alte roluri, exclude daily_sales
+          return item.id !== 'daily_sales';
         }).map((item) => {
           let isActive = activePage === item.id;
           if (item.id === 'locations') isActive = activePage === 'locations' || activePage.startsWith('location_');
@@ -215,10 +217,10 @@ export default function SideMenu({ activePage, onNavigate, onLogout }) {
                       src={getMenuIconById(item.id)}
                       alt={item.label}
                       className="h-5 w-5 object-contain"
+                      onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
                     />
-                  ) : (
-                    item.icon
-                  )}
+                  ) : null}
+                  <span style={{ display: getMenuIconById(item.id) ? 'none' : 'block' }}>{item.icon}</span>
                 </span>
                 
                 <div className="pointer-events-none flex flex-1 items-center justify-between pr-3 translate-x-[-6px] whitespace-nowrap opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
@@ -502,5 +504,6 @@ function getMenuIconById(itemId) {
   if (itemId === "products") return boxIcon;
   if (itemId === "locations") return locationIcon;
   if (itemId === "profile") return userIcon;
+  if (itemId === "daily_sales") return salesLogIcon; // Folosește variabila importată
   return null;
 }
