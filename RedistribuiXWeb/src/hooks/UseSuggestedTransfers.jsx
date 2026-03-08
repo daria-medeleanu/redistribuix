@@ -84,10 +84,9 @@ export function useSuggestedTransfers(status = 2, includeActions = true) {
           throw new Error('Failed to fetch data');
         }
 
-        const [transferData, productsData, approvedData] = await Promise.all([
+        const [transferData, productsData] = await Promise.all([
           transferRes.json(),
           productsRes.json(),
-          approvedRes.json(),
         ])
         
         console.log('[API Response] Transfers received:', {
