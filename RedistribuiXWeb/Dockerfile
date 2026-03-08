@@ -1,4 +1,3 @@
-# Build stage
 FROM node:22-alpine AS build
 WORKDIR /app
 
@@ -8,7 +7,6 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 COPY . .
 RUN npm run build
 
-# Runtime stage
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
