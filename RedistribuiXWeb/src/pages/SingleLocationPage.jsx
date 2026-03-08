@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import SideMenu from '../components/SideMenu'
-import AddProductModal from '../components/AddProductModal'
 import ConfirmationModal from '../components/ConfirmationModal'
 import MLStatusCell from '../components/MLStatusCell'
+import AddDailySaleModal from '../components/AddDailySaleModal'
 import * as XLSX from 'xlsx'
 
 const API_BASE = 'http://localhost:5056/api/v1'
 const ITEMS_PER_PAGE = 10
 
-// Get user from localStorage
 const getAuthUser = () => {
   try {
     const auth = window.localStorage.getItem('redistribuix_auth')
@@ -77,21 +76,18 @@ const getHealthConfig = (stockDetails) => {
             classes: 'inline-flex items-center rounded-md bg-red-50 px-3 py-1.5 text-sm font-bold text-red-700 ring-2 ring-inset ring-red-600/20 shadow-sm'
         }
     }
-
     if (stockDetails.salesLast30Days === 0) {
         return {
             label: 'New',
             classes: 'inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20'
         }
     }
-
     if (stockDetails.remainingStockDays < 14) {
         return {
             label: 'LOW STOCK',
             classes: 'inline-flex items-center rounded-md bg-yellow-50 px-3 py-1.5 text-sm font-bold text-yellow-800 ring-2 ring-inset ring-yellow-600/30 shadow-sm'
         }
     }
-
     return {
         label: 'HEALTHY',
         classes: 'inline-flex items-center rounded-md bg-green-50 px-3 py-1.5 text-sm font-bold text-green-700 ring-2 ring-inset ring-green-600/30 shadow-sm'
@@ -106,7 +102,7 @@ export default function SingleLocationPage() {
     
     const [location, setLocation] = useState(null)
     const [inventory, setInventory] = useState([])
-    const [stats, setStats] = useState({ totalStock: 0, totalSales30d: 0, itemsAtRisk: 0 })
+    const [stats, setStats] = useState({ totalStock: 0, totalSales30d: 0, itemsAtRisk: 0, itemsStockout: 0 })
     
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -118,7 +114,11 @@ export default function SingleLocationPage() {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
     const [productToDelete, setProductToDelete] = useState(null)
+    
     const [mlLoadingProducts, setMlLoadingProducts] = useState(new Set())
+    const [saleProduct, setSaleProduct] = useState(null)
+    const [lastSoldProduct, setLastSoldProduct] = useState(null)
+    const [showSaleConfirm, setShowSaleConfirm] = useState(false)
 
     useEffect(() => {
         setCurrentPage(1)
@@ -138,29 +138,38 @@ export default function SingleLocationPage() {
                     fetch(`${API_BASE}/StockVelocity`)
                 ])
 
-                if (!locRes.ok || !stockRes.ok) {
-                    throw new Error('Failed to fetch essential location data.')
-                }
+                if (!locRes.ok || !stockRes.ok) throw new Error('Failed to fetch data from backend.')
 
                 const [allLocations, allStocks] = await Promise.all([locRes.json(), stockRes.json()])
                 const rawProducts = prodRes.ok ? await prodRes.json().catch(() => []) : []
                 const products = Array.isArray(rawProducts) ? rawProducts : []
 
-                const currentLocation = allLocations.find((loc) => loc.locationId === id)
-                if (!currentLocation) throw new Error('Location not found in database.')
+                const currentLocation = allLocations.find((loc) => String(loc.locationId) === String(id))
+                if (!currentLocation) {
+                    throw new Error('Location not found in database.')
+                }
 
-                const locationStocks = (Array.isArray(allStocks) ? allStocks : []).filter((stock) => stock.locationId === id)
+                const locationStocks = (Array.isArray(allStocks) ? allStocks : []).filter((stock) => String(stock.locationId) === String(id))
 
                 let totalStock = 0
                 let totalSales30d = 0
                 let itemsAtRisk = 0
+                let itemsStockout = 0
 
                 const enrichedInventory = products.map((product) => {
-                    const stockDetails = locationStocks.find((stock) => stock.productId === product?.productId) || STOCK_DEFAULTS
+                    const stockDetails = locationStocks.find((stock) => String(stock.productId) === String(product?.productId)) || STOCK_DEFAULTS
 
                     totalStock += stockDetails.currentQuantity || 0
                     totalSales30d += stockDetails.salesLast30Days || 0
-                    if (stockDetails.currentQuantity > 0 && stockDetails.salesLast30Days > 0 && stockDetails.remainingStockDays < 14) {
+                    
+                    const isStockout = stockDetails.currentQuantity === 0
+                    const isLowStock = stockDetails.currentQuantity > 0 && 
+                                      stockDetails.salesLast30Days > 0 && 
+                                      stockDetails.remainingStockDays < 14
+                    
+                    if (isStockout) {
+                        itemsStockout++
+                    } else if (isLowStock) {
                         itemsAtRisk++
                     }
 
@@ -178,7 +187,7 @@ export default function SingleLocationPage() {
                 if (isCancelled) return
                 setLocation(currentLocation)
                 setInventory(enrichedInventory)
-                setStats({ totalStock, totalSales30d, itemsAtRisk })
+                setStats({ totalStock, totalSales30d, itemsAtRisk, itemsStockout })
             } catch (err) {
                 if (!isCancelled) setError(err.message)
             } finally {
@@ -186,7 +195,13 @@ export default function SingleLocationPage() {
             }
         }
 
-        fetchLocationDetails()
+        if (id) {
+            fetchLocationDetails()
+        } else {
+            setError("No Location ID provided.")
+            setIsLoading(false)
+        }
+        
         return () => { isCancelled = true }
     }, [id, refreshTrigger])
 
@@ -196,9 +211,10 @@ export default function SingleLocationPage() {
 
     const handleNavigate = (pageId) => {
         setActivePage(pageId)
-        if (pageId === 'home') navigate('/home')
+        if (pageId === 'home') navigate('/')
         else if (pageId === 'locations') navigate('/locations')
         else if (pageId === 'profile') navigate('/profile')
+        else if (pageId === 'products') navigate('/products')
         else if (pageId.startsWith('location_')) {
             navigate(`/locations/${pageId.split('_')[1]}`)
         }
@@ -332,27 +348,24 @@ export default function SingleLocationPage() {
     const goToNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages))
     const goToPrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1))
 
-    if (isLoading && inventory.length === 0) {
-        return <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-500">Loading location data...</div>
-    }
-
     if (!user) {
         navigate('/auth')
         return null
     }
 
-    if (error || !location) {
+    if (error) {
         return (
             <div className="flex min-h-screen bg-slate-50">
                 <div className="z-50 shrink-0">
                     <SideMenu activePage={activePage} onNavigate={handleNavigate} onLogout={() => navigate('/auth')} />
                 </div>
                 <div className="flex flex-1 items-center justify-center">
-                    <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 shadow-sm">
-                        <h2 className="text-lg font-bold mb-2">Something went wrong</h2>
-                        <p>{error || 'Location not found'}</p>
-                        <button onClick={() => navigate(user?.role === 'Admin' ? '/locations' : '/')} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
-                            Back to {user?.role === 'Admin' ? 'Locations' : 'Home'}
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 shadow-sm max-w-md text-center">
+                        <div className="text-3xl mb-3">⚠️</div>
+                        <h2 className="text-xl font-bold mb-2">Error Loading Data</h2>
+                        <p className="mb-6 font-medium">{error}</p>
+                        <button onClick={() => navigate(user?.role === 'Admin' ? '/locations' : '/')} className="px-5 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                            Back
                         </button>
                     </div>
                 </div>
@@ -360,16 +373,54 @@ export default function SingleLocationPage() {
         )
     }
 
+    if (isLoading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-slate-50">
+                <div className="flex flex-col items-center gap-3 text-slate-500">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-[#4d4dff]"></div>
+                    <p className="font-medium">Loading location data...</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (!location) return null
+
     const profileBadge = getProfileBadge(location?.profile)
 
     return (
         <div className="flex min-h-screen bg-slate-50 text-slate-900">
-            <AddProductModal 
-                isOpen={isAddModalOpen} 
-                onClose={() => setIsAddModalOpen(false)} 
-                onSuccess={() => setRefreshTrigger(prev => prev + 1)} 
+            <AddDailySaleModal 
+                isOpen={!!saleProduct}
+                onClose={() => setSaleProduct(null)}
+                onSuccess={() => {
+                    setLastSoldProduct(saleProduct?.name);
+                    setSaleProduct(null);
+                    setShowSaleConfirm(true);
+                }}
+                product={saleProduct}
                 locationId={id}
             />
+
+            
+            <ConfirmationModal
+                isOpen={showSaleConfirm}
+                title="Sale Recorded Successfully"
+                message={`The sale for ${lastSoldProduct} has been recorded.`}
+                confirmText="View in Sales Log"
+                cancelText="Close"
+                onConfirm={() => {
+                    setShowSaleConfirm(false);
+                    setLastSoldProduct(null);
+                    navigate(`/daily-sales/${id}`);
+                }}
+                onCancel={() => {
+                    setShowSaleConfirm(false);
+                    setLastSoldProduct(null);
+                }}
+                isDangerous={false}
+            />
+            
             <ConfirmationModal
                 isOpen={isConfirmOpen}
                 title="Delete Product"
@@ -392,7 +443,7 @@ export default function SingleLocationPage() {
                 />
             </div>
 
-            <div className="flex flex-1 flex-col overflow-hidden relative pl-25">
+            <div className="flex flex-1 flex-col overflow-hidden relative pl-[64px]">
                 <main className="flex-1 overflow-y-auto px-6 py-8 md:px-10">
                     <section className="mx-auto max-w-7xl space-y-8">
                         
@@ -421,7 +472,7 @@ export default function SingleLocationPage() {
                             </div>
                         </div>
 
-                        <div className="grid gap-4 md:grid-cols-4">
+                        <div className="grid gap-4 md:grid-cols-5">
                             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                                 <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Products</div>
                                 <div className="mt-2 text-2xl font-bold text-slate-900">{inventory.length}</div>
@@ -432,11 +483,15 @@ export default function SingleLocationPage() {
                             </div>
                             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                                 <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Sales (Last 30 Days)</div>
-                                <div className="mt-2 text-2xl font-bold text-blue-600">{stats.totalSales30d}</div>
+                                <div className="mt-2 text-2xl font-bold text-[#4d4dff]">{stats.totalSales30d}</div>
                             </div>
                             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                                <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Items at Risk</div>
-                                <div className="mt-2 text-2xl font-bold text-red-600">{stats.itemsAtRisk}</div>
+                                <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Low Stock Items</div>
+                                <div className="mt-2 text-2xl font-bold text-yellow-600">{stats.itemsAtRisk}</div>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                                <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Stockout Items</div>
+                                <div className="mt-2 text-2xl font-bold text-red-600">{stats.itemsStockout}</div>
                             </div>
                         </div>
 
@@ -449,7 +504,7 @@ export default function SingleLocationPage() {
                                     placeholder="Search by name or category..." 
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="h-9 w-64 rounded-lg border border-slate-200 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    className="h-9 w-64 rounded-lg border border-slate-200 px-3 text-sm focus:border-[#4d4dff] focus:outline-none focus:ring-1 focus:ring-[#4d4dff]"
                                 />
                             </div>
                             
@@ -463,14 +518,16 @@ export default function SingleLocationPage() {
                                             <th className="px-6 py-4 font-medium text-right">30d Sales</th>
                                             <th className="px-6 py-4 font-medium text-right">Stock Days Left</th>
                                             <th className="px-6 py-4 font-medium text-center">Health</th>
-                                            <th className="px-6 py-4 font-medium text-center"> Forecast (100d)</th>
-                                            <th className="px-6 py-4 font-medium text-center">Actions</th>
+                                            <th className="px-6 py-4 font-medium text-center">Forecast (100d)</th>
+                                            {(user?.role === 'Admin' || user?.role === 'StandManager') && (
+                                                <th className="px-6 py-4 font-medium text-center">Actions</th>
+                                            )}
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
                                         {currentInventoryItems.length > 0 ? (
                                             currentInventoryItems.map((item, index) => (
-                                                <tr key={item.productId || index} className="hover:bg-blue-50/50 transition-colors">
+                                                <tr key={item.productId || index} className="hover:bg-slate-50/50 transition-colors">
                                                     <td className="px-6 py-4 font-medium text-slate-900">{safeString(item.name) || 'Unknown Product'}</td>
                                                     <td className="px-6 py-4 text-slate-500">
                                                         <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
@@ -480,12 +537,12 @@ export default function SingleLocationPage() {
                                                     <td className="px-6 py-4 text-right font-medium text-slate-900">
                                                         {item.stockDetails.currentQuantity}
                                                     </td>
-                                                    <td className="px-6 py-4 text-right text-blue-600 font-medium">
+                                                    <td className="px-6 py-4 text-right text-[#4d4dff] font-medium">
                                                         {item.stockDetails.salesLast30Days}
                                                     </td>
                                                     <td className="px-6 py-4 text-right text-slate-500">
                                                         {item.stockDetails.salesLast30Days === 0 ? (
-                                                            <span className="text-slate-400 italic">New product - Needs data</span>
+                                                            <span className="text-slate-400 italic">New product</span>
                                                         ) : (
                                                             `${item.stockDetails.remainingStockDays} days`
                                                         )}
@@ -500,16 +557,32 @@ export default function SingleLocationPage() {
                                                             onTestML={() => handleTestML(item.productId)}
                                                         />
                                                     </td>
-                                                    <td className="px-6 py-4 text-center">
-                                                        <button
-                                                            onClick={() => handleDeleteProduct(item.productId, item.name)}
-                                                            title="Delete product"
-                                                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-red-100 hover:text-red-600 hover:scale-110"
-                                                        >
-                                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                            </svg>
-                                                        </button>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center justify-center gap-2">
+                                                            {user?.role === 'StandManager' && (
+                                                                <button
+                                                                    onClick={() => setSaleProduct(item)}
+                                                                    title="Record Sale"
+                                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-emerald-600 bg-emerald-50 transition-all duration-200 hover:bg-emerald-100 hover:text-emerald-700 hover:scale-110"
+                                                                >
+                                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                                    </svg>
+                                                                </button>
+                                                            )}
+
+                                                            {user?.role === 'Admin' && (
+                                                                <button
+                                                                    onClick={() => handleDeleteProduct(item.productId, item.name)}
+                                                                    title="Delete product"
+                                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-red-100 hover:text-red-600 hover:scale-110"
+                                                                >
+                                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    </svg>
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))
@@ -559,19 +632,6 @@ export default function SingleLocationPage() {
                     </section>
                 </main>
 
-                {user?.role === 'Admin' && (
-                  <button 
-                      onClick={() => setIsAddModalOpen(true)}
-                      title="Add Product"
-                      className="fixed bottom-8 right-8 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#4d4dff] text-white shadow-lg transition-all duration-200 hover:scale-105 hover:bg-[#3d3dff] hover:shadow-xl focus:outline-none md:bottom-10 md:right-10"
-                  >
-                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                      </svg>
-                  </button>
-                )}
-                
-              
             </div>
         </div>
     )
