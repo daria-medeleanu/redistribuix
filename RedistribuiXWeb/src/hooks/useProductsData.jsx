@@ -51,9 +51,9 @@ export function useProductsData() {
       const opts = headers ? { headers } : undefined
 
       const [catRes, prodRes, stockRes] = await Promise.all([
-        fetch('/api/v1/Product/categories', opts),
-        fetch('/api/v1/Product', opts),
-        fetch('/api/v1/StockVelocity', opts),
+        fetch('http://localhost:5056/api/v1/Product/categories', opts),
+        fetch('http://localhost:5056/api/v1/Product', opts),
+        fetch('http://localhost:5056/api/v1/StockVelocity', opts),
       ])
 
       if (!catRes.ok || !prodRes.ok || !stockRes.ok) throw new Error('Failed to fetch data')

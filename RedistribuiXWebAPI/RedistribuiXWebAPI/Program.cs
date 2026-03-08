@@ -37,7 +37,12 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseCors(AllowAllOrigins);
 
-app.UseHttpsRedirection();
+// În Development (inclusiv în Docker) rulăm doar pe HTTP, fără redirecționare la HTTPS,
+// ca să evităm erorile de fetch din Scalar/frontend când nu există certificat configurat.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 

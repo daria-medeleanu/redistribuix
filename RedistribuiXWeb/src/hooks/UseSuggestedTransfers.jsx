@@ -77,7 +77,7 @@ export function useSuggestedTransfers(status = 2, includeActions = true) {
           }
         }
 
-        const productsRes = await fetch('/api/v1/Product', { headers: authHeaders });
+        const productsRes = await fetch('http://localhost:5056/api/v1/Product', { headers: authHeaders });
         
         if (!transferRes.ok || !productsRes.ok) {
           console.error('[API Error] Transfer response:', transferRes.status, 'Products response:', productsRes.status);
@@ -119,7 +119,7 @@ export function useSuggestedTransfers(status = 2, includeActions = true) {
         approvedAt: new Date().toISOString(),
       })
 
-      const res = await fetch(`/api/v1/TransferBatch/${id}`, {
+      const res = await fetch(`http://localhost:5056/api/v1/TransferBatch/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...buildAuthHeaders(token) },
         body: JSON.stringify(body),
@@ -148,7 +148,7 @@ export function useSuggestedTransfers(status = 2, includeActions = true) {
         approvedAt: null,
       })
 
-      const res = await fetch(`/api/v1/TransferBatch/${id}`, {
+      const res = await fetch(`http://localhost:5056/api/v1/TransferBatch/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...buildAuthHeaders(token) },
         body: JSON.stringify(body),
@@ -191,7 +191,7 @@ export function useSuggestedTransfers(status = 2, includeActions = true) {
         approvedAt: transfer.approvedAt,
       })
 
-      const res = await fetch(`/api/v1/TransferBatch/${id}`, {
+      const res = await fetch(`http://localhost:5056/api/v1/TransferBatch/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...buildAuthHeaders(token) },
         body: JSON.stringify(body),

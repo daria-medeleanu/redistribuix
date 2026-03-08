@@ -74,8 +74,12 @@ namespace Infrastructure.Services
         {
             _context = context;
             _httpClient = httpClient;
-            // Setăm adresa de bază către Python
-            _httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
+
+            // Setăm adresa de bază către Python, cu posibilitatea de override prin env var ML_API_BASE_URL
+            var mlApiBaseUrl = Environment.GetEnvironmentVariable("ML_API_BASE_URL")
+                               ?? "http://127.0.0.1:8000/";
+
+            _httpClient.BaseAddress = new Uri(mlApiBaseUrl);
         }
 
         public async Task<SalesForecastDto?> GetSalesForecast100DaysAsync(Guid locationId, Guid productId)
