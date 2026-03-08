@@ -34,7 +34,6 @@ namespace Infrastructure.Services
         [JsonPropertyName("purchasing_power_encoded")]
         public int PurchasingPowerEncoded { get; set; }
 
-        // NOU: stocul curent, folosit în ML pentru days_of_stock_ml
         [JsonPropertyName("current_stock")]
         public float CurrentStock { get; set; }
     }
@@ -64,7 +63,6 @@ namespace Infrastructure.Services
         public string StockStatus { get; set; }
     }
 
-    // 3. Serviciul principal
     public class SalesForecastService : ISalesForecastService
     {
         private readonly ApplicationDbContext _context;
@@ -74,8 +72,10 @@ namespace Infrastructure.Services
         {
             _context = context;
             _httpClient = httpClient;
-            // Setăm adresa de bază către Python
-            _httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
+            var baseUrl = Environment.GetEnvironmentVariable("ML_API_BASE_URL")
+                          // Implicit, pentru rulare locală (fără Docker), ML API este expus pe localhost:8000
+                          ?? "http://localhost:8000/";
+            _httpClient.BaseAddress = new Uri(baseUrl);
         }
 
         public async Task<SalesForecastDto?> GetSalesForecast100DaysAsync(Guid locationId, Guid productId)

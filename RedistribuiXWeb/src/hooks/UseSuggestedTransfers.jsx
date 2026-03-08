@@ -6,6 +6,8 @@ import {
   buildTransferBody,
 } from '../utils/transferHelpers'
 
+const API_BASE = 'http://localhost:5056/api/v1'
+
 export function useSuggestedTransfers() {
   const [transfers, setTransfers] = useState([])
   const [manuallyApproved, setManuallyApproved] = useState([])
@@ -27,13 +29,13 @@ export function useSuggestedTransfers() {
         const authHeaders = buildAuthHeaders(token)
 
         const [transferRes, productsRes, approvedRes] = await Promise.all([
-          fetch('/api/v1/TransferBatch/generate-recommendations', {
+          fetch(`${API_BASE}/TransferBatch/generate-recommendations`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...authHeaders },
             body: JSON.stringify({}),
           }),
-          fetch('/api/v1/Product', { headers: authHeaders }),
-          fetch('/api/v1/TransferBatch/status/ManuallyApproved', { headers: authHeaders }),
+          fetch(`${API_BASE}/Product`, { headers: authHeaders }),
+          fetch(`${API_BASE}/TransferBatch/status/ManuallyApproved`, { headers: authHeaders }),
         ])
 
         if (!transferRes.ok || !productsRes.ok) throw new Error('Failed to fetch data')
@@ -48,11 +50,12 @@ export function useSuggestedTransfers() {
         setProductsList(Array.isArray(productsData) ? productsData : [])
         setManuallyApproved(Array.isArray(approvedData) ? approvedData : [])
 
-        // mark approved results as approved in actionResult so UI shows them as approved
         setActionResult(prev => {
           const next = { ...prev }
           if (Array.isArray(approvedData)) {
-            approvedData.forEach(a => { next[a.transferBatchId] = 'approved' })
+            approvedData.forEach(a => {
+              next[a.transferBatchId] = 'approved'
+            })
           }
           return next
         })
@@ -77,7 +80,7 @@ export function useSuggestedTransfers() {
         approvedAt: new Date().toISOString(),
       })
 
-      const res = await fetch(`/api/v1/TransferBatch/${id}`, {
+      const res = await fetch(`${API_BASE}/TransferBatch/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...buildAuthHeaders(token) },
         body: JSON.stringify(body),
@@ -85,7 +88,6 @@ export function useSuggestedTransfers() {
 
       if (!res.ok) throw new Error()
       setActionResult(prev => ({ ...prev, [id]: 'approved' }))
-      // remove from recommendations list and add to manually approved list
       setTransfers(prev => prev.filter(t => t.transferBatchId !== id))
       setManuallyApproved(prev => [{ ...transfer, status: 'ManuallyApproved' }, ...prev])
     } catch {
@@ -106,7 +108,7 @@ export function useSuggestedTransfers() {
         approvedAt: null,
       })
 
-      const res = await fetch(`/api/v1/TransferBatch/${id}`, {
+      const res = await fetch(`${API_BASE}/TransferBatch/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...buildAuthHeaders(token) },
         body: JSON.stringify(body),
@@ -115,9 +117,8 @@ export function useSuggestedTransfers() {
       if (!res.ok) throw new Error()
       setActionResult(prev => ({ ...prev, [id]: 'rejected' }))
       setTransfers(prev =>
-        prev.map(t => t.transferBatchId === id ? { ...t, status: 'Rejected' } : t)
+        prev.map(t => (t.transferBatchId === id ? { ...t, status: 'Rejected' } : t)),
       )
-      // if rejected, also ensure it's not present in manually approved
       setManuallyApproved(prev => prev.filter(t => t.transferBatchId !== id))
       setRejectingId(null)
       setDenialReason('')

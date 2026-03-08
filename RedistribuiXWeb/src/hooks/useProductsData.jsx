@@ -6,6 +6,8 @@ import {
   countForCategory,
 } from '../utils/productHelpers'
 
+const API_BASE = 'http://localhost:5056/api/v1'
+
 function getAuthHeaders() {
   try {
     const stored = window.localStorage.getItem('redistribuix_auth')
@@ -51,9 +53,9 @@ export function useProductsData() {
       const opts = headers ? { headers } : undefined
 
       const [catRes, prodRes, stockRes] = await Promise.all([
-        fetch('/api/v1/Product/categories', opts),
-        fetch('/api/v1/Product', opts),
-        fetch('/api/v1/StockVelocity', opts),
+        fetch(`${API_BASE}/Product/categories`, opts),
+        fetch(`${API_BASE}/Product`, opts),
+        fetch(`${API_BASE}/StockVelocity`, opts),
       ])
 
       if (!catRes.ok || !prodRes.ok || !stockRes.ok) throw new Error('Failed to fetch data')

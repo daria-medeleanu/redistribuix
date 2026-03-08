@@ -2,6 +2,8 @@ using Scalar.AspNetCore;
 using Infrastructure;
 using Application;
 using Domain;
+using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var AllowAllOrigins = "AllowAllOrigins";
@@ -24,6 +26,13 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Apply pending EF Core migrations at startup (ensures Admins and other tables exist)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
