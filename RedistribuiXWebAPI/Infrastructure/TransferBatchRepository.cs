@@ -46,15 +46,15 @@ namespace Infrastructure
                 .Where(tb => tb.Status == status)
                 .ToListAsync();
         }
-        public async Task<IEnumerable<TransferBatch>> GetManuallyApprovedByLocationAsync(Guid locationId)
+        public async Task<IEnumerable<TransferBatch>> GetByStatusAndLocationAsync(Guid locationId, StatusTransfer status)
         {
             return await context.TransferBatches
                 .Include(tb => tb.SourceLocation)
                 .Include(tb => tb.DestinationLocation)
                 .Include(tb => tb.Products)
                     .ThenInclude(p => p.Product)
-                .Where(tb => tb.Status == StatusTransfer.ManuallyApproved
-                          && (tb.SourceLocationId == locationId || tb.DestinationLocationId == locationId))
+                .Where(tb => tb.Status == status
+                          && (tb.DestinationLocationId == locationId))
                 .ToListAsync();
         }
         public async Task AddAsync(TransferBatch transferBatch)

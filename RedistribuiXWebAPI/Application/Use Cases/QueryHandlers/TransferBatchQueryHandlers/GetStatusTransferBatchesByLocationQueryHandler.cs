@@ -6,23 +6,23 @@ using MediatR;
 
 namespace Application.Use_Cases.QueryHandlers.TransferBatchQueryHandlers
 {
-    public class GetManuallyApprovedTransferBatchesByLocationQueryHandler
-        : IRequestHandler<GetManuallyApprovedTransferBatchesByLocationQuery, List<TransferBatchDto>>
+    public class GetStatusTransferBatchesByLocationQueryHandler
+        : IRequestHandler<GetStatusTransferBatchesByLocationQuery, List<TransferBatchDto>>
     {
         private readonly ITransferBatchRepository repository;
         private readonly IMapper mapper;
 
-        public GetManuallyApprovedTransferBatchesByLocationQueryHandler(ITransferBatchRepository repository, IMapper mapper)
+        public GetStatusTransferBatchesByLocationQueryHandler(ITransferBatchRepository repository, IMapper mapper)
         {
             this.repository = repository;
             this.mapper = mapper;
         }
 
         public async Task<List<TransferBatchDto>> Handle(
-            GetManuallyApprovedTransferBatchesByLocationQuery request,
+            GetStatusTransferBatchesByLocationQuery request,
             CancellationToken cancellationToken)
         {
-            var transferBatches = await repository.GetManuallyApprovedByLocationAsync(request.LocationId);
+            var transferBatches = await repository.GetByStatusAndLocationAsync(request.LocationId, request.Status);
             return mapper.Map<List<TransferBatchDto>>(transferBatches);
         }
     }

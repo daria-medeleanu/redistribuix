@@ -79,11 +79,11 @@ namespace RedistribuiXWebAPI.Controllers
             return Ok(transferBatches);
         }
 
-        [HttpGet("location/{locationId}/manually-approved")]
-        public async Task<ActionResult<IEnumerable<TransferBatchDto>>> GetManuallyApprovedByLocation(Guid locationId)
+        [HttpGet("location/{locationId}/status/{status}")]
+        public async Task<ActionResult<IEnumerable<TransferBatchDto>>> GetByStatusAndLocation(Guid locationId, StatusTransfer status)
         {
             var transferBatches = await mediator.Send(
-                new GetManuallyApprovedTransferBatchesByLocationQuery { LocationId = locationId });
+                new GetStatusTransferBatchesByLocationQuery { LocationId = locationId, Status = status });
             return Ok(transferBatches);
         }
     }

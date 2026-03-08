@@ -8,7 +8,7 @@ namespace Domain.Repositories
         Task<IEnumerable<TransferBatch>> GetAllAsync();
         Task<TransferBatch> GetByIdAsync(Guid id);
         Task<IEnumerable<TransferBatch>> GetByStatusAsync(StatusTransfer status);
-        Task<IEnumerable<TransferBatch>> GetManuallyApprovedByLocationAsync(Guid locationId);
+        Task<IEnumerable<TransferBatch>> GetByStatusAndLocationAsync(Guid locationId, StatusTransfer status);
 
         Task AddAsync(TransferBatch transferBatch);
         Task UpdateAsync(TransferBatch transferBatch);

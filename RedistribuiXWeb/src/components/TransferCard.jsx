@@ -5,8 +5,7 @@ const STATUS_MAP = {
   1: 'AutoApproved',
   2: 'ManuallyApproved',
   3: 'Rejected',
-  4: 'Shipped',
-  5: 'Completed',
+  4: 'Completed',
 }
 
 function getStatusText(status) {
@@ -92,6 +91,7 @@ function TransferCard({
   onToggleReject,
   onCancelReject,
   userRole,
+  isCompleted,
 }) {
   return (
     <article className="group relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-[#a6a6ff]">
@@ -152,6 +152,7 @@ function TransferCard({
             onToggleReject={onToggleReject}
             onCancelReject={onCancelReject}
             userRole={userRole}
+            isCompleted={isCompleted}
           />
         </div>
       </div>

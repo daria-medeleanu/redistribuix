@@ -20,12 +20,18 @@ function TransferActionButtons({
   onCancelReject,
   onComplete,
   userRole,
+  isCompleted,
 }) {
   const id = transfer.transferBatchId
   const isLoading = actionLoading === id
   const result = actionResult[id]
   const isRejecting = rejectingId === id
   const isStandManager = userRole === 'StandManager'
+
+  // Don't show action buttons for completed transfers
+  if (isCompleted || transfer.status === 4 || transfer.status === 'Completed') {
+    return null
+  }
 
   if (result === 'approved') {
     return (

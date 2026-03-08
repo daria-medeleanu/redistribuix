@@ -23,8 +23,7 @@ function getAuthUser() {
     return null;
   }
 }
-
-export function useSuggestedTransfers() {
+export function useSuggestedTransfers(status = 2, includeActions = true) {
   const [transfers, setTransfers] = useState([])
   const [productsList, setProductsList] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -38,6 +37,7 @@ export function useSuggestedTransfers() {
   useEffect(() => {
     async function loadData() {
       try {
+        console.log(`[useSuggestedTransfers] Fetching transfers with status: ${status}`);
         setIsLoading(true)
         setHasError(false)
 
@@ -49,31 +49,55 @@ export function useSuggestedTransfers() {
 
         let transferRes;
         if (isStandManager && user?.locationId) {
-          // Stand managers fetch their location's manually approved transfers
-          transferRes = await fetch(`/api/v1/TransferBatch/location/${user.locationId}/manually-approved`, {
+          // Stand managers fetch their location's transfers by status
+          const apiUrl = `http://localhost:5056/api/v1/TransferBatch/location/${user.locationId}/status/${status}`;
+          console.log('[Stand Manager] Fetching transfers:', apiUrl);
+          transferRes = await fetch(apiUrl, {
             method: 'GET',
             headers: authHeaders,
           });
         } else {
-          // Admins generate recommendations
-          transferRes = await fetch('/api/v1/TransferBatch/generate-recommendations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeaders },
-            body: JSON.stringify({}),
-          });
+          // Admins: for status 2 (ManuallyApproved) use generate-recommendations, otherwise fetch by status
+          if (status === 2) {
+            const apiUrl = 'http://localhost:5056/api/v1/TransferBatch/generate-recommendations';
+            console.log('[Admin] Generating transfer recommendations:', apiUrl);
+            transferRes = await fetch(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...authHeaders },
+              body: JSON.stringify({}),
+            });
+          } else {
+            const apiUrl = `http://localhost:5056/api/v1/TransferBatch/status/${status}`;
+            console.log('[Admin] Fetching transfers by status:', apiUrl);
+            transferRes = await fetch(apiUrl, {
+              method: 'GET',
+              headers: authHeaders,
+            });
+          }
         }
 
         const productsRes = await fetch('/api/v1/Product', { headers: authHeaders });
-        if (!transferRes.ok || !productsRes.ok) throw new Error('Failed to fetch data')
+        
+        if (!transferRes.ok || !productsRes.ok) {
+          console.error('[API Error] Transfer response:', transferRes.status, 'Products response:', productsRes.status);
+          throw new Error('Failed to fetch data');
+        }
 
         const [transferData, productsData] = await Promise.all([
           transferRes.json(),
           productsRes.json(),
         ])
-        console.log(transferData);
+        
+        console.log('[API Response] Transfers received:', {
+          count: Array.isArray(transferData) ? transferData.length : 0,
+          status: status,
+          data: transferData
+        });
+        
         setTransfers(Array.isArray(transferData) ? transferData : [])
         setProductsList(Array.isArray(productsData) ? productsData : [])
-      } catch {
+      } catch (error) {
+        console.error('[API Error] Failed to fetch transfers:', error);
         setHasError(true)
       } finally {
         setIsLoading(false)
@@ -81,7 +105,7 @@ export function useSuggestedTransfers() {
     }
 
     loadData()
-  }, [])
+  }, [status])
 
   async function handleApprove(transfer) {
     const id = transfer.transferBatchId
@@ -187,16 +211,18 @@ export function useSuggestedTransfers() {
     productsList,
     isLoading,
     hasError,
-    actionLoading,
-    rejectingId,
-    denialReason,
-    setDenialReason,
-    actionResult,
     userRole,
-    handleApprove,
-    handleReject,
-    handleComplete,
-    toggleRejectPanel,
-    cancelReject,
+    ...(includeActions && {
+      actionLoading,
+      rejectingId,
+      denialReason,
+      setDenialReason,
+      actionResult,
+      handleApprove,
+      handleReject,
+      handleComplete,
+      toggleRejectPanel,
+      cancelReject,
+    }),
   }
 }
