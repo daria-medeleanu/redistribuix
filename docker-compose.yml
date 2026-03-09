@@ -20,6 +20,7 @@ services:
     container_name: redistribuix_api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:5056/"
       ConnectionStrings__DefaultConnection: "host=db;port=5432;database=RedistribuX;userid=postgres;password=paroladb"
       ML_API_BASE_URL: "http://mlapi:8000/"
     ports:
