@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: redistribuix_db
+    environment:
+      POSTGRES_DB: RedistribuX
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: paroladb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./RedistribuiXWebAPI
+      dockerfile: Dockerfile
+    container_name: redistribuix_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:5056/"
+      ConnectionStrings__DefaultConnection: "host=db;port=5432;database=RedistribuX;userid=postgres;password=paroladb"
+      ML_API_BASE_URL: "http://mlapi:8000/"
+    ports:
+      - "5056:5056"
+    depends_on:
+      - db
+
+  mlapi:
+    build:
+      context: ./RedistribuiXMLAPI
+      dockerfile: Dockerfile
+    container_name: redistribuix_mlapi
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: ./RedistribuiXWeb
+      dockerfile: Dockerfile
+    container_name: redistribuix_web
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+      - mlapi
+
+volumes:
+  postgres_data:

@@ -60,7 +60,7 @@ function CategoryCard({ name, count, active, onClick }) {
           className={`text-[10px] font-bold px-2 py-0.5 rounded-full leading-none
             ${active ? 'bg-[#4d4dff] text-white' : 'bg-[#dbdbff] text-[#4d4dff]'}`}
         >
-          {count}
+          {count} types
         </span>
       )}
     </button>

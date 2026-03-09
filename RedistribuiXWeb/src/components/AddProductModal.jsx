@@ -106,15 +106,21 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
         return String(raw).replace(/"/g, '')
     }
 
-    const buildStockPayload = (locId, productId, quantity) => ({
-        locationId: locId,
-        productId,
-        currentQuantity: quantity,
-        salesLast30Days: 0,
-        salesLast100Days: 0,
-        lastInboundDate: new Date().toISOString(),
-        lastInventoryDate: new Date().toISOString()
-    })
+    const buildStockPayload = (locId, productId, quantity) => {
+        const todayUtc = new Date()
+        todayUtc.setUTCHours(0, 0, 0, 0)
+        const todayIso = todayUtc.toISOString()
+
+        return {
+            locationId: locId,
+            productId,
+            currentQuantity: quantity,
+            salesLast30Days: 0,
+            salesLast100Days: 0,
+            lastInboundDate: todayIso,
+            lastInventoryDate: todayIso
+        }
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -172,7 +178,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
             if (locationId) {
                 if (formData.currentQuantity >= 0) {
                     const stockPayload = buildStockPayload(locationId, productId, formData.currentQuantity)
-
+                    console.log(stockPayload);
                     const stockResponse = await fetch(`${API_BASE}/StockVelocity`, {
                         method: 'POST',
                         headers: {
@@ -180,7 +186,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, locationId
                         },
                         body: JSON.stringify(stockPayload)
                     })
-
+                    console.log(stockResponse)
                     if (!stockResponse.ok) {
                         throw new Error('Product created but failed to add stock')
                     }

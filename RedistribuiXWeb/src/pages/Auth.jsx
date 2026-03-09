@@ -110,7 +110,7 @@ function AuthPage() {
       if (decodedRole === 'Admin') {
         navigate('/home')
       } else if (decodedRole === 'StandManager' && authPayload.locationId) {
-        navigate(`/locations/${authPayload.locationId}`)
+        navigate(`/home`)
       } else {
         navigate('/')
       }
@@ -152,7 +152,7 @@ function AuthPage() {
                   onClick={() => setRole('Admin')}
                   className={`rounded-2xl px-3 py-1 transition ${
                     role === 'Admin'
-                      ? 'bg-white shadow-sm text-[#46190c]'
+                      ? 'bg-white shadow-sm text-[#2e2e67]'
                       : 'text-[#3e3e8a] hover:text-[#4d4dff]'
                   }`}
                 >
@@ -163,7 +163,7 @@ function AuthPage() {
                   onClick={() => setRole('StandManager')}
                   className={`rounded-2xl px-3 py-1 transition ${
                     role === 'StandManager'
-                      ? 'bg-white shadow-sm text-[#46190c]'
+                      ? 'bg-white shadow-sm text-[#4d4dff]'
                       : 'text-[#3e3e8a] hover:text-[#4d4dff]'
                   }`}
                 >

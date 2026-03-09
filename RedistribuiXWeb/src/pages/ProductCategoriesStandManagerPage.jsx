@@ -37,6 +37,17 @@ const getCategoryIcon = (categoryId) => {
   return category ? category.icon : '📦'
 }
 
+function EmptyPrompt() {
+  return (
+    <div className="flex flex-col items-center justify-center flex-1 py-24 gap-4 opacity-40 select-none">
+      <div className="w-14 h-14 rounded-full border-2 border-dashed border-[#4d4dff] flex items-center justify-center text-xl text-[#4d4dff]">
+        ✦
+      </div>
+      <p className="text-sm text-[#3e3e8a]">Select a category above to explore products</p>
+    </div>
+  )
+}
+
 export default function ProductCategoriesStandManagerPage() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -186,36 +197,40 @@ export default function ProductCategoriesStandManagerPage() {
             )}
 
             {selectedCategory === null ? (
-              <div className="flex flex-wrap items-center justify-center gap-8">
-                {CATEGORIES.map(category => {
-                  const count = category.id === 'all' 
-                    ? allProducts.length 
-                    : allProducts.filter(p => (p.productCategory ?? p.category) === category.id).length
+              <>
+                <div className="flex flex-wrap items-center justify-center gap-8">
+                  {CATEGORIES.map(category => {
+                    const count = category.id === 'all' 
+                      ? allProducts.length 
+                      : allProducts.filter(p => (p.productCategory ?? p.category) === category.id).length
 
-                  return (
-                    <button
-                      key={category.id}
-                      type="button"
-                      onClick={() => handleSelectCategory(category.id)}
-                      className="group relative flex flex-col items-center justify-center gap-3 h-48 w-48 rounded-full border border-slate-200 bg-white shadow-sm transition-all duration-200 ease-out hover:border-[#4d4dff] hover:shadow-lg hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4d4dff]/50 cursor-pointer"
-                    >
-                      <div className="flex items-center justify-center w-18 h-18 rounded-full bg-slate-50 overflow-hidden transition-transform duration-200 group-hover:scale-105">
-                        <img src={category.icon} alt={category.name} className="w-14 h-14 object-contain" />
-                      </div>
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => handleSelectCategory(category.id)}
+                        className="group relative flex flex-col items-center justify-center gap-3 h-48 w-48 rounded-full border border-slate-200 bg-white shadow-sm transition-all duration-200 ease-out hover:border-[#4d4dff] hover:shadow-lg hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4d4dff]/50 cursor-pointer"
+                      >
+                        <div className="flex items-center justify-center w-18 h-18 rounded-full bg-slate-50 overflow-hidden transition-transform duration-200 group-hover:scale-105">
+                          <img src={category.icon} alt={category.name} className="w-14 h-14 object-contain" />
+                        </div>
 
-                      <span className="text-sm font-semibold leading-tight text-center text-[#4b5563]">
-                        {category.name}
-                      </span>
-
-                      {count > 0 && (
-                        <span className="text-xs font-bold px-2.5 py-1 rounded-full leading-none bg-[#dbdbff] text-[#4d4dff]">
-                          {count} types
+                        <span className="text-sm font-semibold leading-tight text-center text-[#4b5563]">
+                          {category.name}
                         </span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
+
+                        {count > 0 && (
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full leading-none bg-[#dbdbff] text-[#4d4dff]">
+                            {count} types
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <EmptyPrompt />
+              </>
             ) : (
               <div>
                 <div className="flex items-center gap-3 mb-6">

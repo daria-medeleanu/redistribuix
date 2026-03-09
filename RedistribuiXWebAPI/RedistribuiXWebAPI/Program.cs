@@ -21,7 +21,17 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<Application.Services.TransferRecommendationService>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Servers = new List<Microsoft.OpenApi.Models.OpenApiServer>
+        {
+            new() { Url = "http://localhost:5056" }
+        };
+        return Task.CompletedTask;
+    });
+});
 
 var app = builder.Build();
 
@@ -36,9 +46,10 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseRouting();
 app.UseCors(AllowAllOrigins);
-
-app.UseHttpsRedirection();
-
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseAuthorization();
 
 app.MapControllers();
