@@ -48,7 +48,6 @@ RedistribuiX provides:
 - **React Router**
 - Mapping/geo:
   - **Leaflet / React-Leaflet**
-  - **Mapbox GL / react-map-gl**
 - **framer-motion** (UI animations)
 - **xlsx** (spreadsheet import/export)
 
